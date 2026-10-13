@@ -44,7 +44,8 @@ var theme_row := 0
 
 func _init(level_data: Dictionary) -> void:
 	data = level_data
-	rows = PackedStringArray(data.get("map", []))
+	var map_rows: Array = data.get("map", [])
+	rows = PackedStringArray(map_rows)
 	height = rows.size()
 	width = rows[0].length() if height > 0 else 0
 	theme_row = maxi(0, THEMES.find(data.get("theme", "calles")))

@@ -21,19 +21,45 @@ func _ready() -> void:
 		var d := GameState.load_level_data(GameState.levels[i]["id"])
 		GameState.intros_seen[d.get("intro", "")] = true
 	await get_tree().process_frame
-	await _run(&"test_data_files")
-	await _run(&"test_all_levels_build")
-	await _run(&"test_movement_and_jump")
-	await _run(&"test_collisions_floor")
-	await _run(&"test_collectible")
-	await _run(&"test_damage_and_checkpoint_respawn")
-	await _run(&"test_pit_death")
-	await _run(&"test_chase_catches_player")
-	await _run(&"test_mission_locks_exit")
-	await _run(&"test_friend_joins")
-	await _run(&"test_save_and_load")
-	await _run(&"test_scene_transition")
-	await _run(&"test_performance")
+	_begin("test_data_files")
+	await test_data_files()
+	_end()
+	_begin("test_all_levels_build")
+	await test_all_levels_build()
+	_end()
+	_begin("test_movement_and_jump")
+	await test_movement_and_jump()
+	_end()
+	_begin("test_collisions_floor")
+	await test_collisions_floor()
+	_end()
+	_begin("test_collectible")
+	await test_collectible()
+	_end()
+	_begin("test_damage_and_checkpoint_respawn")
+	await test_damage_and_checkpoint_respawn()
+	_end()
+	_begin("test_pit_death")
+	await test_pit_death()
+	_end()
+	_begin("test_chase_catches_player")
+	await test_chase_catches_player()
+	_end()
+	_begin("test_mission_locks_exit")
+	await test_mission_locks_exit()
+	_end()
+	_begin("test_friend_joins")
+	await test_friend_joins()
+	_end()
+	_begin("test_save_and_load")
+	await test_save_and_load()
+	_end()
+	_begin("test_scene_transition")
+	await test_scene_transition()
+	_end()
+	_begin("test_performance")
+	await test_performance()
+	_end()
 	print("")
 	print("==== RESULTADO: %d pruebas OK, %d fallos ====" % [_passed, _failures.size()])
 	for f in _failures:
@@ -41,11 +67,16 @@ func _ready() -> void:
 	get_tree().quit(0 if _failures.is_empty() else 1)
 
 
-func _run(test: StringName) -> void:
-	_current = String(test)
-	var before := _failures.size()
-	await call(test)
-	if _failures.size() == before:
+var _before := 0
+
+
+func _begin(test_name: String) -> void:
+	_current = test_name
+	_before = _failures.size()
+
+
+func _end() -> void:
+	if _failures.size() == _before:
 		_passed += 1
 		print("[OK]    " + _current)
 	else:
@@ -154,7 +185,8 @@ func test_collisions_floor() -> void:
 	var p := level.player
 	await frames(60)
 	var ground_y := p.global_position.y
-	check(is_equal_approx(fmod(ground_y, 16.0), 0.0) or absf(fmod(ground_y, 16.0)) < 0.6, "El jugador no descansa sobre un tile (%.2f)" % ground_y)
+	var r := fposmod(ground_y, 16.0)
+	check(minf(r, 16.0 - r) < 0.6, "El jugador no descansa sobre un tile (%.2f)" % ground_y)
 	await frames(30)
 	check(absf(p.global_position.y - ground_y) < 0.5, "El jugador atraviesa el suelo")
 	await free_level(level)
@@ -180,7 +212,7 @@ func test_damage_and_checkpoint_respawn() -> void:
 	var level := spawn_level("level_01")
 	var p := level.player
 	await frames(20)
-	var cp: Node2D = get_tree().get_nodes_in_group("checkpoints")[0]
+	var cp = get_tree().get_nodes_in_group("checkpoints")[0]
 	cp.activate(true)
 	check(GameState.has_checkpoint, "El punto de control no se registró")
 	var lives0 := GameState.lives

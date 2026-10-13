@@ -22,13 +22,13 @@ static func build(parent: Node, theme: String, autoscroll_speed: float = 0.0) ->
 		var def: Array = layers[i]
 		var p := Parallax2D.new()
 		p.name = String(def[0]).capitalize()
-		p.scroll_scale = Vector2(def[1], 1.0)
+		p.scroll_scale = Vector2(float(def[1]), 1.0)
 		p.repeat_size = Vector2(LAYER_WIDTH, 0)
 		p.repeat_times = 4
 		if autoscroll_speed != 0.0:
 			p.autoscroll = Vector2(-autoscroll_speed * float(def[1]), 0)
 		var spr := Sprite2D.new()
-		spr.texture = load(BG_DIR + def[0] + ".png")
+		spr.texture = load(BG_DIR + String(def[0]) + ".png")
 		spr.centered = false
 		spr.position = Vector2(0, TOP)
 		p.add_child(spr)
