@@ -1,0 +1,39 @@
+{
+ "levels": [
+  {
+   "id": "level_01",
+   "title": "Nivel 1: Calles nocturnas",
+   "scene": "res://scenes/levels/level_01.tscn"
+  },
+  {
+   "id": "level_02",
+   "title": "Nivel 2: Sector comercial",
+   "scene": "res://scenes/levels/level_02.tscn"
+  },
+  {
+   "id": "level_03",
+   "title": "Nivel 3: El CAI",
+   "scene": "res://scenes/levels/level_03.tscn"
+  },
+  {
+   "id": "level_04",
+   "title": "Nivel 4: El parque",
+   "scene": "res://scenes/levels/level_04.tscn"
+  },
+  {
+   "id": "level_05",
+   "title": "Nivel 5: El barrio",
+   "scene": "res://scenes/levels/level_05.tscn"
+  },
+  {
+   "id": "level_06",
+   "title": "Nivel 6: El viaducto",
+   "scene": "res://scenes/levels/level_06.tscn"
+  },
+  {
+   "id": "level_07",
+   "title": "Nivel 7: Encuentro final",
+   "scene": "res://scenes/levels/level_07.tscn"
+  }
+ ]
+}

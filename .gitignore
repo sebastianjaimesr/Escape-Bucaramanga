@@ -1,0 +1,10 @@
+# Godot 4
+.godot/
+/build/
+/android/
+*.tmp
+
+# Herramientas locales
+/tools/godot/
+__pycache__/
+*.pyc

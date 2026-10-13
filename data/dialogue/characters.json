@@ -1,0 +1,39 @@
+{
+	"protagonist": {
+		"name": "Rojo",
+		"sheet": "res://assets/characters/protagonist.png",
+		"portrait": "res://assets/characters/protagonist_portrait.png",
+		"color": "#ff6b7d"
+	},
+	"gorra": {
+		"name": "Gorra",
+		"sheet": "res://assets/characters/friend_gorra.png",
+		"portrait": "res://assets/characters/friend_gorra_portrait.png",
+		"color": "#5fe39b"
+	},
+	"rulos": {
+		"name": "Rulos",
+		"sheet": "res://assets/characters/friend_rulos.png",
+		"portrait": "res://assets/characters/friend_rulos_portrait.png",
+		"color": "#ffd166"
+	},
+	"gafas": {
+		"name": "Gafas",
+		"sheet": "res://assets/characters/friend_gafas.png",
+		"portrait": "res://assets/characters/friend_gafas_portrait.png",
+		"color": "#7fb2ff"
+	},
+	"patrol": {
+		"name": "Dron patrulla",
+		"sheet": "",
+		"portrait": "res://assets/sprites/patrol_drone.png",
+		"portrait_region": [0, 0, 48, 32],
+		"color": "#9ecbff"
+	},
+	"narrator": {
+		"name": "",
+		"sheet": "",
+		"portrait": "",
+		"color": "#d8d0ff"
+	}
+}
