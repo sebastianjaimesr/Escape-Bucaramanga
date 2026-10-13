@@ -31,7 +31,15 @@ py -m http.server 8060 --directory build/web
 
 y abre `http://localhost:8060`.
 
-## 4. Publicar (requiere tu decisión)
+## 4. Repositorio y GitHub Pages
+
+El código está en https://github.com/sebastianjaimesr/Escape-Bucaramanga (rama `main`) y la versión web exportada en la rama `gh-pages`.
+
+Para activar Pages: en el repositorio, **Settings → Pages → Build and deployment → Source: Deploy from a branch → Branch: gh-pages / (root) → Save**. El juego quedará en https://sebastianjaimesr.github.io/Escape-Bucaramanga/.
+
+Para actualizar la versión web después de cambiar el juego: vuelve a exportar a `build/web` y sube ese contenido a la rama `gh-pages` (por ejemplo con `git subtree` o copiando los archivos en una carpeta clonada de esa rama).
+
+## 5. Otras opciones de publicación
 
 Opciones gratuitas habituales:
 
