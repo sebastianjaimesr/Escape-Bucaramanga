@@ -132,7 +132,7 @@ func _ready() -> void:
 	_hint = _label("", 20)
 	_hint.anchor_left = 0.1
 	_hint.anchor_right = 0.9
-	_hint.anchor_top = 0.72
+	_hint.anchor_top = 0.86
 	_hint.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	_hint.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	_hint.add_theme_color_override("font_color", Color(0.75, 0.95, 1.0))
@@ -140,7 +140,7 @@ func _ready() -> void:
 	_prompt = _label("", 18)
 	_prompt.anchor_left = 0.3
 	_prompt.anchor_right = 0.7
-	_prompt.anchor_top = 0.62
+	_prompt.anchor_top = 0.56
 	_prompt.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	_prompt.add_theme_color_override("font_color", Color(1, 0.9, 0.5))
 	root.add_child(_prompt)

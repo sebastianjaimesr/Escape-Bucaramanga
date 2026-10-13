@@ -10,6 +10,7 @@ func _ready() -> void:
 	get_tree().paused = false
 	var backdrop := MenuBackdrop.new()
 	backdrop.characters = ["protagonist"]
+	backdrop.start_x = 120.0
 	add_child(backdrop)
 	var layer := CanvasLayer.new()
 	layer.layer = 5

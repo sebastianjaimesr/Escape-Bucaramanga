@@ -1,33 +1,43 @@
 # Estado del proyecto
 
-Fecha: 13 de octubre de 2026.
+Fecha: 13 de octubre de 2026. Motor usado para las pruebas: **Godot 4.7.2 estable**.
 
-## Terminado
+## Terminado y verificado
 
-- Proyecto Godot 4 organizado por módulos (`scenes/`, `scripts/`, `assets/`, `data/`, `tests/`, `docs/`) con historial Git.
-- Jugador con máquina de estados (8 estados), tiempo de coyote, búfer y salto variable, correr, daño con invulnerabilidad, muerte y reaparición.
-- 7 niveles construidos desde datos con `TileMapLayer`: calles, sector comercial, CAI, parque, barrio, viaducto y encuentro final.
-- Persecución ficticia con dificultad progresiva (por nivel y por tiempo) y barra de distancia en el HUD.
-- Plataformas fijas, de un sentido y móviles; carros sólidos; barreras intermitentes; vidrios y conos; drones (se pisan) y perros (se saltan).
-- Puntos de control, vidas, salud, coleccionables (bocadillos, pistas, corazones), misiones por nivel, meta bloqueada hasta cumplirlas.
-- Tres amigos que se encuentran con diálogo, se unen al grupo y siguen al jugador.
-- Diálogos en español con retratos y texto progresivo; historia completa con final.
-- Menú principal, selección de nivel, opciones de audio (música, efectos, lluvia, pantalla completa), pausa, derrota, victoria y final.
-- Guardado de progreso y configuración en `user://save.json`.
-- Fondos parallax de 4 capas, iluminación nocturna con luces de farolas, vitrinas y patrullas, lluvia opcional, partículas de polvo, recogida y daño, sacudida de cámara y destellos.
-- Música (5 pistas) y efectos (16) originales.
+| Verificación | Cómo | Resultado |
+|---|---|---|
+| Sintaxis y carga de todos los scripts | Importación de Godot sin errores de script | OK |
+| Referencias a escenas, recursos, diálogos y niveles | `py tools/validate_project.py` | 0 errores |
+| Movimiento, salto, correr, colisiones con el suelo | `tests/test_runner.tscn` | OK |
+| Coleccionables, misiones y meta bloqueada | `tests/test_runner.tscn` | OK |
+| Daño, muerte, reaparición en punto de control, caída al vacío | `tests/test_runner.tscn` | OK |
+| Persecución: captura, pérdida de vida y retroceso del dron | `tests/test_runner.tscn` | OK |
+| Encuentro con amigo, diálogo, unión al grupo | `tests/test_runner.tscn` | OK |
+| Guardado y carga | `tests/test_runner.tscn` | OK |
+| Transiciones entre escenas | `tests/test_runner.tscn` | OK |
+| Rendimiento (nivel 6 con persecución) | `tests/test_runner.tscn` | ~16,7 ms por cuadro, limitado a 60 FPS |
+| Los 7 niveles se pueden completar con la física real | `tests/bot_runner.tscn` (bot automático) | 7 de 7 |
+| Flujo menú → nivel → introducción → persecución | `tests/flow_check.tscn` | OK |
+| Exportación web | `--export-release "Web"` | `build/web/` generado (≈40 MB, casi todo el motor) |
+| Juego web en navegador | Servido en local y abierto en navegador | Menú, nivel 1, diálogo, movimiento, bocadillos y persecución funcionando, sin errores en consola |
+
+El bot encontró 5 tramos injustos (un obstáculo justo antes de un hueco o escalones demasiado angostos) en los niveles 1, 3, 4, 6 y 7; se corrigieron en `tools/build_levels.py`.
+
+## Contenido
+
+- 7 niveles: calles, sector comercial, CAI, parque, barrio, viaducto y encuentro final.
+- Protagonista y 3 amigos con 7 animaciones cada uno; dron patrulla, drones vigía y perros.
+- Persecución con dificultad progresiva por nivel y por tiempo, barra de distancia en el HUD.
+- Plataformas fijas, de un sentido y móviles; carros; barreras intermitentes; vidrios y conos.
+- Vidas, salud, puntos de control, bocadillos, pistas, corazones, misiones.
+- Diálogos en español con retratos e historia completa con final.
+- Menú, selección de nivel, opciones de audio, pausa, derrota, victoria, final y créditos.
+- Guardado de progreso, música y efectos originales, lluvia opcional, partículas, luces nocturnas.
 - Controles de teclado, mando y táctiles.
-- Configuración de exportación Web y Windows.
-- Validador estático (`tools/validate_project.py`): **0 errores**.
-- Suite de pruebas de integración (`tests/test_runner.tscn`) con 13 pruebas.
 
-## Pendiente de verificación
+## Pendiente o limitado
 
-- **El juego todavía no se ha ejecutado en Godot**: Godot no estaba instalado en este equipo. El código se revisó a mano y con el validador estático, pero pueden aparecer errores de compilación o de ajuste fino al abrirlo por primera vez.
-- La suite de pruebas en el motor y la exportación web quedan listas para ejecutarse en cuanto Godot esté disponible.
-
-## Limitaciones conocidas
-
-- Las fotografías de referencia no estaban en la carpeta; los personajes se basan en la descripción escrita (ver `docs/RECURSOS.md`).
-- El arte es procedural en pixel art; sirve como versión jugable y se puede reemplazar sin tocar código.
-- La alcanzabilidad de los niveles se comprobó con un análisis simplificado; el ajuste fino de dificultad requiere jugarlos.
+- **Fotografías**: no estaban en la carpeta. Los personajes se basan en la descripción escrita; los amigos son diseños provisionales (ver `docs/RECURSOS.md`).
+- **Controles táctiles**: implementados, no probados en un teléfono real.
+- **Balance fino**: el bot comprueba que se puede llegar a la meta, no que la dificultad sea ideal. Conviene jugarlo y ajustar velocidades de la persecución en `tools/build_levels.py`.
+- **Publicación**: la versión web está lista en `build/web/` pero no se ha publicado en ningún sitio (ver `docs/PUBLICACION.md`).

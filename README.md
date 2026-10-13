@@ -6,7 +6,7 @@ Juego de plataformas 2D de acción nocturna hecho en **Godot 4 (GDScript)**. Roj
 
 ## Requisitos
 
-- Godot **4.4 o superior** (versión estándar, no .NET). Probado contra la API de Godot 4.4+ (`TileMapLayer`, `Parallax2D`).
+- Godot **4.4 o superior** (versión estándar, no .NET). Probado con **Godot 4.7.2**.
 - Para regenerar arte, audio o niveles: Python 3 con `Pillow` y `numpy`.
 
 ## Ejecutar el juego
@@ -65,6 +65,14 @@ Pruebas de integración dentro del motor (movimiento, salto, colisiones, daño, 
 ```bash
 godot --headless --path . res://tests/test_runner.tscn
 ```
+
+Bot que recorre los 7 niveles con la física real para comprobar que se pueden completar:
+
+```bash
+godot --headless --path . --fixed-fps 60 res://tests/bot_runner.tscn
+```
+
+Godot 4.7.2 quedó descargado en `tools/godot/` (no se sube a Git); puedes usar `tools\godot\Godot_v4.7.2-stable_win64.exe` en lugar de `godot`.
 
 ## Regenerar recursos
 

@@ -8,6 +8,7 @@ extends Node2D
 @export var characters: Array = ["protagonist"]
 @export var show_chaser := true
 @export var running := true
+@export var start_x := 250.0
 
 const GROUND_Y := 272.0
 
@@ -23,7 +24,7 @@ func _ready() -> void:
 	add_child(cam)
 	cam.make_current()
 	_build_ground()
-	var x := 250.0
+	var x := start_x
 	for id in characters:
 		var spr := AnimatedSprite2D.new()
 		spr.sprite_frames = SpriteFactory.character_frames(GameState.character_sheet(id))
