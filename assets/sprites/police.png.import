@@ -2,16 +2,16 @@
 
 importer="texture"
 type="CompressedTexture2D"
-uid="uid://c8tubadf8pgst"
-path="res://.godot/imported/dog.png-980f3ee55972ca94cd6e484d7a9b5ecc.ctex"
+uid="uid://dvwn8bo26a0h3"
+path="res://.godot/imported/police.png-c22345feac2fdb7d4ad8546f363115ec.ctex"
 metadata={
 "vram_texture": false
 }
 
 [deps]
 
-source_file="res://assets/sprites/dog.png"
-dest_files=["res://.godot/imported/dog.png-980f3ee55972ca94cd6e484d7a9b5ecc.ctex"]
+source_file="res://assets/sprites/police.png"
+dest_files=["res://.godot/imported/police.png-c22345feac2fdb7d4ad8546f363115ec.ctex"]
 
 [params]
 

@@ -79,8 +79,8 @@ func _build_victory() -> void:
 	_box.add_child(UITheme.title_label("¡Nivel superado!", 40, Color(0.5, 1, 0.7)))
 	_text(String(r.get("title", "")), 22, Color(0.75, 0.85, 1))
 	var t := int(r.get("time", 0.0))
-	var lines := "Bocadillos: %d / %d\nTiempo: %d:%02d\nVidas: %d" % [
-		int(r.get("bocadillos", 0)), int(r.get("total_bocadillos", 0)), t / 60, t % 60, int(r.get("lives", 0))]
+	var lines := "Granizados: %d / %d\nTiempo: %d:%02d\nVidas: %d" % [
+		int(r.get("granizados", 0)), int(r.get("total_granizados", 0)), t / 60, t % 60, int(r.get("lives", 0))]
 	if int(r.get("total_pistas", 0)) > 0:
 		lines += "\nPistas: %d / %d" % [int(r.get("pistas", 0)), int(r.get("total_pistas", 0))]
 	if int(r.get("friends", 0)) > 0:
@@ -109,11 +109,11 @@ func _build_game_over() -> void:
 func _build_ending() -> void:
 	AudioManager.play_music("finale")
 	_box.add_child(UITheme.title_label("¡Fin de la aventura!", 40, Color(1, 0.85, 0.5)))
-	_text("Rojo, Gorra, Rulos y Gafas llegaron juntos al mirador. El video aclaró la confusión y la noche terminó con bocadillos y la ciudad iluminada a sus pies.", 20)
+	_text("Sebas, Buitrago, Diaz y Gordo llegaron juntos al mirador. El video aclaró la confusión y la noche terminó con granizados y la ciudad iluminada a sus pies.", 20)
 	var total := 0
-	for key: String in GameState.best_bocadillos:
-		total += int(GameState.best_bocadillos[key])
-	_text("Bocadillos (mejor marca total): %d" % total, 20, Color(1, 0.8, 0.8))
+	for key: String in GameState.best_granizados:
+		total += int(GameState.best_granizados[key])
+	_text("Granizados (mejor marca total): %d" % total, 20, Color(1, 0.8, 0.8))
 	_text("Gracias por jugar Escape de Bucaramanga. La historia puede continuar: nuevos niveles se agregan en data/levels.", 16, Color(0.75, 0.8, 1))
 	_box.add_child(UITheme.button("Volver al menú", _to_menu))
 

@@ -1,7 +1,7 @@
 class_name MissionSystem
 extends Node
 ## Objetivos del nivel definidos en data/levels/*.json ("mission").
-## Tipos: reach_exit, collect (bocadillos), pistas, friend.
+## Tipos: reach_exit, collect (granizados), pistas, friend.
 
 signal updated(text: String)
 signal objective_completed(text: String)
@@ -13,7 +13,7 @@ var _done: Dictionary = {}
 
 func setup(defs: Array) -> void:
 	objectives = defs.duplicate(true)
-	GameState.bocadillos_changed.connect(_on_count_changed)
+	GameState.granizados_changed.connect(_on_count_changed)
 	GameState.pistas_changed.connect(_on_count_changed)
 	refresh()
 
@@ -30,7 +30,7 @@ func mark_friend_found() -> void:
 func is_done(obj: Dictionary) -> bool:
 	match String(obj.get("type", "")):
 		"collect":
-			return GameState.level_bocadillos >= int(obj.get("count", 0))
+			return GameState.level_granizados >= int(obj.get("count", 0))
 		"pistas":
 			return GameState.level_pistas >= int(obj.get("count", 0))
 		"friend":
@@ -59,7 +59,7 @@ func describe(obj: Dictionary) -> String:
 	var text: String = obj.get("text", "")
 	match String(obj.get("type", "")):
 		"collect":
-			text += " (%d/%d)" % [mini(GameState.level_bocadillos, int(obj["count"])), int(obj["count"])]
+			text += " (%d/%d)" % [mini(GameState.level_granizados, int(obj["count"])), int(obj["count"])]
 		"pistas":
 			text += " (%d/%d)" % [mini(GameState.level_pistas, int(obj["count"])), int(obj["count"])]
 	return text

@@ -4,7 +4,7 @@ extends Node
 
 signal lives_changed(lives: int)
 signal health_changed(health: int, max_health: int)
-signal bocadillos_changed(count: int)
+signal granizados_changed(count: int)
 signal pistas_changed(count: int)
 signal friends_changed(friends: Array)
 
@@ -19,13 +19,13 @@ var current_level := 0
 var unlocked_level := 0
 var lives := MAX_LIVES
 var health := MAX_HEALTH
-var level_bocadillos := 0
+var level_granizados := 0
 var level_pistas := 0
 var friends: Array = []
 var checkpoint_position := Vector2.ZERO
 var has_checkpoint := false
 var intros_seen: Dictionary = {}
-var best_bocadillos: Dictionary = {}
+var best_granizados: Dictionary = {}
 var last_result: Dictionary = {}
 var settings := {"music": 0.7, "sfx": 0.85, "rain": true, "fullscreen": false}
 
@@ -99,7 +99,7 @@ func start_level(index: int) -> void:
 	if lives <= 0:
 		lives = MAX_LIVES
 	health = MAX_HEALTH
-	level_bocadillos = 0
+	level_granizados = 0
 	level_pistas = 0
 	has_checkpoint = false
 	friends = friends_before(index)
@@ -125,7 +125,7 @@ func friends_before(index: int) -> Array:
 
 func complete_level(stats: Dictionary) -> void:
 	var level_id: String = levels[current_level]["id"]
-	best_bocadillos[level_id] = maxi(int(best_bocadillos.get(level_id, 0)), level_bocadillos)
+	best_granizados[level_id] = maxi(int(best_granizados.get(level_id, 0)), level_granizados)
 	last_result = stats
 	last_result["level_index"] = current_level
 	if current_level + 1 < levels.size():
@@ -160,13 +160,18 @@ func lose_life() -> int:
 	return lives
 
 
-func add_bocadillo(amount: int = 1) -> void:
-	level_bocadillos += amount
-	bocadillos_changed.emit(level_bocadillos)
-	# Cada 25 bocadillos se gana una vida extra.
-	if level_bocadillos % 25 == 0 and lives < MAX_LIVES:
+func add_granizado(amount: int = 1) -> void:
+	level_granizados += amount
+	granizados_changed.emit(level_granizados)
+	# Cada 25 granizados se gana una vida extra.
+	if level_granizados % 25 == 0 and lives < MAX_LIVES:
 		lives += 1
 		lives_changed.emit(lives)
+
+
+func add_life() -> void:
+	lives = mini(MAX_LIVES, lives + 1)
+	lives_changed.emit(lives)
 
 
 func add_pista() -> void:

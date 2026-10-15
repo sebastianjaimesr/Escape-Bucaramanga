@@ -21,9 +21,11 @@ const SCENES := {
 	"c": "res://scenes/obstacles/parked_car.tscn",
 	"!": "res://scenes/obstacles/hint_sign.tscn",
 	"d": "res://scenes/enemies/drone.tscn",
-	"g": "res://scenes/enemies/dog.tscn",
+	"g": "res://scenes/enemies/police.tscn",
 	"F": "res://scenes/friends/friend.tscn",
 }
+
+const SHOPS := ["oxxo", "d1", "cc", "granizado"]
 
 const PROPS := {
 	"L": "res://assets/sprites/lamp.png",
@@ -128,7 +130,7 @@ func build_tiles() -> TileMapLayer:
 ## Recorre el mapa y crea las entidades. Devuelve información útil para el nivel.
 func spawn_entities(world: Node2D, props_root: Node2D, entities_root: Node2D) -> Dictionary:
 	var info := {"player_start": Vector2(64, 200), "exit": null, "friend": null, "hints": [],
-		"total_bocadillos": 0, "total_pistas": 0}
+		"total_granizados": 0, "total_pistas": 0}
 	var hints: Array = data.get("hints", [])
 	var hint_index := 0
 	var packed_cache := {}
@@ -142,6 +144,12 @@ func spawn_entities(world: Node2D, props_root: Node2D, entities_root: Node2D) ->
 				continue
 			if PROPS.has(ch) or ch == "T" or ch == "w":
 				_spawn_prop(ch, x, y, props_root)
+				if ch == "w" and shop_at(x) == "granizado":
+					# Cada tienda de granizado regala una vida extra.
+					var life = load(SCENES["o"]).instantiate()
+					life.kind = "life"
+					life.position = bottom_center(x, y) + Vector2(0, -12)
+					entities_root.add_child(life)
 				continue
 			if not SCENES.has(ch):
 				push_warning("Símbolo desconocido '%s' en (%d, %d)" % [ch, x, y])
@@ -152,10 +160,10 @@ func spawn_entities(world: Node2D, props_root: Node2D, entities_root: Node2D) ->
 			var node = packed_cache[path].instantiate()  # sin tipo: cada escena expone propiedades propias
 			match ch:
 				"o", "p", "h":
-					node.kind = {"o": "bocadillo", "p": "pista", "h": "heart"}[ch]
+					node.kind = {"o": "granizado", "p": "pista", "h": "heart"}[ch]
 					node.position = center(x, y)
 					if ch == "o":
-						info["total_bocadillos"] += 1
+						info["total_granizados"] += 1
 					elif ch == "p":
 						info["total_pistas"] += 1
 				"^", "n":
@@ -195,6 +203,11 @@ func spawn_entities(world: Node2D, props_root: Node2D, entities_root: Node2D) ->
 	return info
 
 
+## Tienda que corresponde a la columna x (OXXO, D1, centro comercial o granizado).
+static func shop_at(x: int) -> String:
+	return SHOPS[(x * 7) % SHOPS.size()]
+
+
 func _ground_bounds(x: int, y: int) -> Vector2:
 	var left := x
 	var right := x
@@ -207,11 +220,10 @@ func _ground_bounds(x: int, y: int) -> Vector2:
 
 func _spawn_prop(ch: String, x: int, y: int, root: Node2D) -> void:
 	var tex_path := ""
-	var theme: String = data.get("theme", "calles")
 	if ch == "T":
-		tex_path = "res://assets/sprites/tree.png" if theme in ["parque", "barrio"] else "res://assets/sprites/palm.png"
+		tex_path = "res://assets/sprites/tree.png"
 	elif ch == "w":
-		tex_path = "res://assets/sprites/shop_%d.png" % (1 + (x * 7) % 4)
+		tex_path = "res://assets/sprites/shop_%s.png" % shop_at(x)
 	else:
 		tex_path = PROPS[ch]
 	var spr := Sprite2D.new()

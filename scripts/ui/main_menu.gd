@@ -113,10 +113,10 @@ func _level_select() -> void:
 	var first: Button = null
 	for i in GameState.level_count():
 		var info: Dictionary = GameState.levels[i]
-		var best := int(GameState.best_bocadillos.get(info["id"], 0))
+		var best := int(GameState.best_granizados.get(info["id"], 0))
 		var label := String(info["title"])
 		if best > 0:
-			label += "   (récord: %d bocadillos)" % best
+			label += "   (récord: %d granizados)" % best
 		var idx := i
 		var b := UITheme.button(label, func() -> void: GameState.start_level(idx))
 		b.custom_minimum_size = Vector2(520, 40)

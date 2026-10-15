@@ -8,8 +8,8 @@
 		{"speaker": "narrator", "text": "Esta persecución es ficticia: si el dron te alcanza pierdes una vida y vuelves al último punto de control."}
 	],
 	"intro_level_02": [
-		{"speaker": "protagonist", "text": "El sector comercial está lleno de luces. Si llego con bocadillos, los muchachos me perdonan la tardanza."},
-		{"speaker": "narrator", "text": "Los toldos de las tiendas forman rutas alternativas. Cada 25 bocadillos ganas una vida extra."}
+		{"speaker": "protagonist", "text": "El sector comercial está lleno de luces. Si llego con granizados, los muchachos me perdonan la tardanza."},
+		{"speaker": "narrator", "text": "Los toldos de las tiendas forman rutas alternativas. Cada 25 granizados ganas una vida extra."}
 	],
 	"intro_level_03": [
 		{"speaker": "protagonist", "text": "El CAI. Voy a explicar lo que pasó... pero está cerrado: 'Volvemos pronto'."},
@@ -18,23 +18,23 @@
 	],
 	"intro_level_04": [
 		{"speaker": "narrator", "text": "El parque. Bajo los guayacanes, todo parece más tranquilo."},
-		{"speaker": "protagonist", "text": "Gorra siempre se sienta en las bancas del centro. Ojalá siga aquí."}
+		{"speaker": "protagonist", "text": "Buitrago siempre se sienta en las bancas del centro. Ojalá siga aquí."}
 	],
 	"friend_gorra": [
 		{"speaker": "gorra", "text": "¡Parce! ¿Por qué te sigue un dron con sirena?"},
 		{"speaker": "protagonist", "text": "Larga historia: me confundieron con un ladrón por la mochila negra."},
 		{"speaker": "gorra", "text": "Yo grabé video en el concierto, ahí sales tú a la hora del robo. Pero mi celular está sin batería."},
-		{"speaker": "protagonist", "text": "Rulos siempre carga una batería portátil. ¡Vamos al barrio!"},
+		{"speaker": "protagonist", "text": "Diaz siempre carga una batería portátil. ¡Vamos al barrio!"},
 		{"speaker": "gorra", "text": "¡Hágale! Y cuidado: escucho la sirena otra vez."}
 	],
 	"intro_level_05": [
-		{"speaker": "protagonist", "text": "El barrio de Rulos: escaleras, tiendas y vecinos en la puerta. Seguro está por aquí."},
-		{"speaker": "gorra", "text": "Y de paso recogemos bocadillos de la tienda, que esta noche va para largo."}
+		{"speaker": "protagonist", "text": "El barrio de Diaz: escaleras, tiendas y vecinos en la puerta. Seguro está por aquí."},
+		{"speaker": "gorra", "text": "Y de paso recogemos granizados de la tienda, que esta noche va para largo."}
 	],
 	"friend_rulos": [
 		{"speaker": "rulos", "text": "¡Llegaron! ¿Y esa sirena?"},
 		{"speaker": "gorra", "text": "Te explicamos corriendo. ¿Tienes la batería portátil?"},
-		{"speaker": "rulos", "text": "Siempre. Pero el resto del video lo tiene Gafas: se quedó en el viaducto tomando fotos de la ciudad."},
+		{"speaker": "rulos", "text": "Siempre. Pero el resto del video lo tiene Gordo: se quedó en el viaducto tomando fotos de la ciudad."},
 		{"speaker": "protagonist", "text": "Entonces al viaducto. ¡Rápido!"}
 	],
 	"intro_level_06": [
@@ -58,7 +58,7 @@
 		{"speaker": "gafas", "text": "Este es el video del concierto: mire la hora. Y este es el verdadero ladrón, con gorra amarilla."},
 		{"speaker": "patrol", "text": "Información recibida. El sospechoso de gorra amarilla ya fue ubicado. Gracias por colaborar y disculpen la confusión."},
 		{"speaker": "rulos", "text": "Bueno... ¿y ahora qué hacemos?"},
-		{"speaker": "protagonist", "text": "Ahora sí: bocadillos para todos y a ver la ciudad desde el mirador."},
+		{"speaker": "protagonist", "text": "Ahora sí: granizados para todos y a ver la ciudad desde el mirador."},
 		{"speaker": "narrator", "text": "La noche en Bucaramanga apenas comienza."}
 	]
 }

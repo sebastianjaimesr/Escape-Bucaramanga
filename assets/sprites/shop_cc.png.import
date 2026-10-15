@@ -2,16 +2,16 @@
 
 importer="texture"
 type="CompressedTexture2D"
-uid="uid://c0hb02qd0cckt"
-path="res://.godot/imported/palm.png-c415b5aab8195b6144d42f2a387f67d5.ctex"
+uid="uid://buk0a05sldxa1"
+path="res://.godot/imported/shop_cc.png-0975c8cda6ff9215e5cd8ff4dd3db2d5.ctex"
 metadata={
 "vram_texture": false
 }
 
 [deps]
 
-source_file="res://assets/sprites/palm.png"
-dest_files=["res://.godot/imported/palm.png-c415b5aab8195b6144d42f2a387f67d5.ctex"]
+source_file="res://assets/sprites/shop_cc.png"
+dest_files=["res://.godot/imported/shop_cc.png-0975c8cda6ff9215e5cd8ff4dd3db2d5.ctex"]
 
 [params]
 

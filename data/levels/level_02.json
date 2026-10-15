@@ -16,7 +16,7 @@
   {
    "type": "collect",
    "count": 18,
-   "text": "Recoge 18 bocadillos para invitar a tus amigos"
+   "text": "Recoge 18 granizados para invitar a tus amigos"
   },
   {
    "type": "reach_exit",
@@ -27,8 +27,8 @@
  "outro": null,
  "friend": null,
  "hints": [
-  "Los toldos son rutas alternativas con más bocadillos",
-  "Sigue la ruta alta para esquivar a los perros"
+  "Los toldos son rutas alternativas con más granizados",
+  "Sigue la ruta alta para esquivar a los policías"
  ],
  "tile_size": 16,
  "width": 167,

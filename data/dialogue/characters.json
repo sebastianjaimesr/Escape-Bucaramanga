@@ -1,24 +1,24 @@
 {
 	"protagonist": {
-		"name": "Rojo",
+		"name": "Sebas",
 		"sheet": "res://assets/characters/protagonist.png",
 		"portrait": "res://assets/characters/protagonist_portrait.png",
 		"color": "#ff6b7d"
 	},
 	"gorra": {
-		"name": "Gorra",
+		"name": "Buitrago",
 		"sheet": "res://assets/characters/friend_gorra.png",
 		"portrait": "res://assets/characters/friend_gorra_portrait.png",
 		"color": "#5fe39b"
 	},
 	"rulos": {
-		"name": "Rulos",
+		"name": "Diaz",
 		"sheet": "res://assets/characters/friend_rulos.png",
 		"portrait": "res://assets/characters/friend_rulos_portrait.png",
 		"color": "#ffd166"
 	},
 	"gafas": {
-		"name": "Gafas",
+		"name": "Gordo",
 		"sheet": "res://assets/characters/friend_gafas.png",
 		"portrait": "res://assets/characters/friend_gafas_portrait.png",
 		"color": "#7fb2ff"

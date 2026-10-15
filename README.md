@@ -1,6 +1,6 @@
 # Escape de Bucaramanga
 
-Juego de plataformas 2D de acción nocturna hecho en **Godot 4 (GDScript)**. Rojo, un joven de camiseta roja y mochila negra, es confundido con un ladrón durante una noche en Bucaramanga. Debe atravesar siete niveles inspirados en la ciudad, reunir a sus tres amigos y llegar al mirador para aclarar todo, mientras un dron patrulla ficticio lo sigue.
+Juego de plataformas 2D de acción nocturna hecho en **Godot 4 (GDScript)**. Sebas, un joven de camiseta roja y mochila negra, es confundido con un ladrón durante una noche en Bucaramanga. Debe atravesar siete niveles inspirados en la ciudad, reunir a sus tres amigos y llegar al mirador para aclarar todo, mientras un dron patrulla ficticio lo sigue.
 
 > Obra de ficción. Los lugares están inspirados en Bucaramanga, no son reproducciones exactas. La persecución es una mecánica de juego con reglas claras.
 
@@ -37,7 +37,7 @@ En pantallas táctiles aparecen botones en pantalla automáticamente.
 - **Salud**: 3 corazones. Vidrios rotos, conos, perros y drones quitan un corazón.
 - **Vidas**: 5. Pierdes una vida si te quedas sin corazones, caes al vacío o el dron patrulla te alcanza. Reapareces en el último punto de control.
 - **Persecución**: la barra "Distancia a la patrulla" muestra qué tan cerca está. Acelera con el tiempo y es más rápida en cada nivel.
-- **Bocadillos**: coleccionables. Cada 25 en un nivel dan una vida extra. Algunos niveles exigen una cantidad.
+- **Granizados**: coleccionables. Cada 25 en un nivel dan una vida extra. Algunos niveles exigen una cantidad.
 - **Drones vigía**: se desactivan saltando encima. Los **perros** no se pisan: hay que saltarlos.
 - **Meta**: se ve roja hasta cumplir los objetivos del nivel y verde cuando está abierta.
 - **Progreso**: se guarda al llegar a puntos de control y al completar niveles (`user://save.json`).
@@ -45,11 +45,11 @@ En pantallas táctiles aparecen botones en pantalla automáticamente.
 ## Niveles
 
 1. Calles nocturnas (tutorial e inicio de la persecución)
-2. Sector comercial (vitrinas, toldos y rutas alternativas; misión de bocadillos)
+2. Sector comercial (vitrinas, toldos y rutas alternativas; misión de granizados)
 3. El CAI (barreras intermitentes, drones y 3 pistas)
-4. El parque (encuentro con Gorra; la persecución vuelve después)
-5. El barrio (escaleras, tiendas, encuentro con Rulos)
-6. El viaducto (huecos largos, persecución exigente, rescate de Gafas)
+4. El parque (encuentro con Buitrago; la persecución vuelve después)
+5. El barrio (escaleras, tiendas, encuentro con Diaz)
+6. El viaducto (huecos largos, persecución exigente, rescate de Gordo)
 7. Encuentro final (los cuatro juntos hasta el mirador y final de la historia)
 
 ## Pruebas

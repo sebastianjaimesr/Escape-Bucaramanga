@@ -2,16 +2,16 @@
 
 importer="texture"
 type="CompressedTexture2D"
-uid="uid://cuykomil1i2st"
-path="res://.godot/imported/shop_3.png-303df6af73941208b5c999c5979720a5.ctex"
+uid="uid://bsod05aemrqe7"
+path="res://.godot/imported/moto.png-b507d414b6225d95f56d54a2262c60d9.ctex"
 metadata={
 "vram_texture": false
 }
 
 [deps]
 
-source_file="res://assets/sprites/shop_3.png"
-dest_files=["res://.godot/imported/shop_3.png-303df6af73941208b5c999c5979720a5.ctex"]
+source_file="res://assets/sprites/moto.png"
+dest_files=["res://.godot/imported/moto.png-b507d414b6225d95f56d54a2262c60d9.ctex"]
 
 [params]
 

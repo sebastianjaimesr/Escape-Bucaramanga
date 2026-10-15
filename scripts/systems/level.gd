@@ -36,7 +36,7 @@ var exit_node = null  # LevelExit (scripts/obstacles/level_exit.gd)
 var friend_node: FriendNPC
 var followers: Array[FriendFollower] = []
 var start_position := Vector2.ZERO
-var total_bocadillos := 0
+var total_granizados := 0
 var total_pistas := 0
 var finished := false
 var elapsed := 0.0
@@ -68,7 +68,7 @@ func _ready() -> void:
 	add_child(entities)
 	var info := builder.spawn_entities(self, props, entities)
 	start_position = info["player_start"]
-	total_bocadillos = info["total_bocadillos"]
+	total_granizados = info["total_granizados"]
 	total_pistas = info["total_pistas"]
 	exit_node = info["exit"]
 	friend_node = info["friend"]
@@ -261,8 +261,8 @@ func _on_exit_reached(_p: Player) -> void:
 		await dialogue.play(outro)
 	var stats := {
 		"title": data.get("title", ""),
-		"bocadillos": GameState.level_bocadillos,
-		"total_bocadillos": total_bocadillos,
+		"granizados": GameState.level_granizados,
+		"total_granizados": total_granizados,
 		"pistas": GameState.level_pistas,
 		"total_pistas": total_pistas,
 		"time": elapsed,

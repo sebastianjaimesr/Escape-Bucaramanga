@@ -2,16 +2,16 @@
 
 importer="texture"
 type="CompressedTexture2D"
-uid="uid://dhy2wgicysym4"
-path="res://.godot/imported/shop_2.png-8f33bccd503132804be19b22a65e56b2.ctex"
+uid="uid://dfhwep2ospu00"
+path="res://.godot/imported/life_pickup.png-d124ec6fe299e9ecbb15d1478792fc7c.ctex"
 metadata={
 "vram_texture": false
 }
 
 [deps]
 
-source_file="res://assets/sprites/shop_2.png"
-dest_files=["res://.godot/imported/shop_2.png-8f33bccd503132804be19b22a65e56b2.ctex"]
+source_file="res://assets/sprites/life_pickup.png"
+dest_files=["res://.godot/imported/life_pickup.png-d124ec6fe299e9ecbb15d1478792fc7c.ctex"]
 
 [params]
 

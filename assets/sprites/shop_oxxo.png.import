@@ -2,16 +2,16 @@
 
 importer="texture"
 type="CompressedTexture2D"
-uid="uid://cq1hmbalum6jd"
-path="res://.godot/imported/bocadillo.png-23710434308b9e8f71759c5fd26ec2d6.ctex"
+uid="uid://df7evmiberdk1"
+path="res://.godot/imported/shop_oxxo.png-7a4cfcbe018d6c15c8d11540844a7c9e.ctex"
 metadata={
 "vram_texture": false
 }
 
 [deps]
 
-source_file="res://assets/sprites/bocadillo.png"
-dest_files=["res://.godot/imported/bocadillo.png-23710434308b9e8f71759c5fd26ec2d6.ctex"]
+source_file="res://assets/sprites/shop_oxxo.png"
+dest_files=["res://.godot/imported/shop_oxxo.png-7a4cfcbe018d6c15c8d11540844a7c9e.ctex"]
 
 [params]
 

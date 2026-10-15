@@ -36,6 +36,9 @@ func _ready() -> void:
 	_begin("test_collectible")
 	await test_collectible()
 	_end()
+	_begin("test_life_pickup_at_granizado_shop")
+	await test_life_pickup_at_granizado_shop()
+	_end()
 	_begin("test_damage_and_checkpoint_respawn")
 	await test_damage_and_checkpoint_respawn()
 	_end()
@@ -99,7 +102,7 @@ func spawn_level(level_id: String) -> Level:
 	GameState.friends = GameState.friends_before(GameState.current_level)
 	GameState.lives = GameState.MAX_LIVES
 	GameState.health = GameState.MAX_HEALTH
-	GameState.level_bocadillos = 0
+	GameState.level_granizados = 0
 	GameState.level_pistas = 0
 	GameState.has_checkpoint = false
 	var scene: PackedScene = load("res://scenes/levels/%s.tscn" % level_id)
@@ -138,7 +141,7 @@ func test_all_levels_build() -> void:
 		check(level.player != null, "%s sin jugador" % info["id"])
 		check(level.exit_node != null, "%s sin meta" % info["id"])
 		check(level.get_node_or_null("Tiles") is TileMapLayer, "%s sin TileMapLayer" % info["id"])
-		check(level.total_bocadillos > 0, "%s sin bocadillos" % info["id"])
+		check(level.total_granizados > 0, "%s sin granizados" % info["id"])
 		var d: Dictionary = level.data
 		var f: Variant = d.get("friend")
 		if f is Dictionary:
@@ -197,14 +200,31 @@ func test_collectible() -> void:
 	await frames(5)
 	var target: Node2D = null
 	for n in level.get_node("Entities").get_children():
-		if n.get("kind") == "bocadillo":
+		if n.get("kind") == "granizado":
 			target = n
 			break
-	check(target != null, "No hay bocadillos")
+	check(target != null, "No hay granizados")
 	if target:
 		level.player.global_position = target.global_position + Vector2(0, 10)
 		await frames(4)
-		check(GameState.level_bocadillos == 1, "No se contó el bocadillo (%d)" % GameState.level_bocadillos)
+		check(GameState.level_granizados == 1, "No se contó el granizado (%d)" % GameState.level_granizados)
+	await free_level(level)
+
+
+func test_life_pickup_at_granizado_shop() -> void:
+	var level := spawn_level("level_02")
+	await frames(5)
+	var life: Node2D = null
+	for n in level.get_node("Entities").get_children():
+		if n.get("kind") == "life":
+			life = n
+			break
+	check(life != null, "No hay vida extra frente a una tienda de granizado")
+	if life:
+		GameState.lives = 3
+		level.player.global_position = life.global_position + Vector2(0, 10)
+		await frames(4)
+		check(GameState.lives == 4, "La vida extra no sumó (%d)" % GameState.lives)
 	await free_level(level)
 
 
@@ -262,15 +282,15 @@ func test_chase_catches_player() -> void:
 func test_mission_locks_exit() -> void:
 	var level := spawn_level("level_02")
 	await frames(5)
-	check(not level.mission.can_finish(), "La meta no debería abrirse sin bocadillos")
+	check(not level.mission.can_finish(), "La meta no debería abrirse sin granizados")
 	check(not level.exit_node.is_open, "La meta debería verse cerrada")
 	level.exit_node.reached.emit(level.player)
 	await frames(2)
 	check(not level.finished, "No debería terminar el nivel con objetivos pendientes")
 	for i in 18:
-		GameState.add_bocadillo()
+		GameState.add_granizado()
 	await frames(2)
-	check(level.mission.can_finish(), "Con 18 bocadillos la meta debería abrir")
+	check(level.mission.can_finish(), "Con 18 granizados la meta debería abrir")
 	check(level.exit_node.is_open, "La meta no cambió a abierta")
 	await free_level(level)
 
@@ -311,15 +331,15 @@ func test_save_and_load() -> void:
 		backup = FileAccess.get_file_as_string(SaveSystem.SAVE_PATH)
 	GameState.unlocked_level = 3
 	GameState.current_level = 2
-	GameState.best_bocadillos["level_01"] = 21
+	GameState.best_granizados["level_01"] = 21
 	check(SaveSystem.save_game(), "No se pudo guardar")
 	GameState.unlocked_level = 0
 	GameState.current_level = 0
-	GameState.best_bocadillos.clear()
+	GameState.best_granizados.clear()
 	check(SaveSystem.load_game(), "No se pudo cargar")
 	check(GameState.unlocked_level == 3, "unlocked_level no se restauró")
 	check(GameState.current_level == 2, "current_level no se restauró")
-	check(int(GameState.best_bocadillos.get("level_01", 0)) == 21, "Récord no se restauró")
+	check(int(GameState.best_granizados.get("level_01", 0)) == 21, "Récord no se restauró")
 	if backup != "":
 		var f := FileAccess.open(SaveSystem.SAVE_PATH, FileAccess.WRITE)
 		f.store_string(backup)
@@ -329,7 +349,7 @@ func test_save_and_load() -> void:
 		SaveSystem.delete_save()
 		GameState.unlocked_level = 0
 		GameState.current_level = 0
-		GameState.best_bocadillos.clear()
+		GameState.best_granizados.clear()
 
 
 func test_scene_transition() -> void:

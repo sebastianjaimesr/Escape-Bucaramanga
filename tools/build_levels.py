@@ -4,13 +4,13 @@ Uso:  py tools/build_levels.py
 
 Leyenda del mapa (una celda = 16x16 px):
   .  vacío            #  suelo sólido          =  plataforma de un sentido
-  B  caja sólida      ^  vidrios (daño)        o  bocadillo (coleccionable)
+  B  caja sólida      ^  vidrios (daño)        o  granizado (coleccionable)
   p  pista            h  corazón (vida)        P  inicio del jugador
   C  punto de control X  meta / salida         F  amigo del nivel
-  d  dron vigía       g  perro bravo           M  plataforma móvil horizontal
+  d  dron vigía       g  policía                M  plataforma móvil horizontal
   V  plataforma móvil vertical                 |  barrera intermitente
   c  carro estacionado L  farola               S  señal de tránsito
-  T  árbol/palmera    b  banca                 w  vitrina de tienda
+  T  árbol            b  banca                 w  vitrina de tienda
   K  CAI              k  patrulla estacionada  t  caneca
   f  matera           !  letrero de ayuda (usa la lista "hints")
   n  cono (daño)
@@ -372,15 +372,15 @@ LEVELS = [
          intro="intro_level_01", outro=None, friend=None,
          hints=["Muévete con A/D o las flechas", "Salta con ESPACIO, W o flecha arriba",
                 "Súbete a los carros para saltar más alto", "Mantén SHIFT para correr: los huecos grandes lo necesitan",
-                "Los vidrios rotos y los conos hacen daño", "Los perros bravos no se pisan: ¡sáltalos!",
+                "Los vidrios rotos y los conos hacen daño", "A los policías no se les salta encima: ¡pásalos por arriba sin tocarlos!",
                 "Las plataformas móviles te llevan sobre los huecos"]),
     dict(id="level_02", title="Nivel 2: Sector comercial", subtitle="Luces y vitrinas de Cabecera",
          theme="comercial", music="chase", rain=True, build=level_2,
          chase=dict(mode="delay", delay=4.0, speed=58.0, accel=0.4, max_speed=84.0),
-         mission=[dict(type="collect", count=18, text="Recoge 18 bocadillos para invitar a tus amigos"),
+         mission=[dict(type="collect", count=18, text="Recoge 18 granizados para invitar a tus amigos"),
                   dict(type="reach_exit", text="Llega a la meta")],
          intro="intro_level_02", outro=None, friend=None,
-         hints=["Los toldos son rutas alternativas con más bocadillos", "Sigue la ruta alta para esquivar a los perros"]),
+         hints=["Los toldos son rutas alternativas con más granizados", "Sigue la ruta alta para esquivar a los policías"]),
     dict(id="level_03", title="Nivel 3: El CAI", subtitle="Aclarar el malentendido",
          theme="cai", music="chase", rain=False, build=level_3,
          chase=dict(mode="delay", delay=5.0, speed=62.0, accel=0.45, max_speed=88.0),
@@ -401,7 +401,7 @@ LEVELS = [
          theme="barrio", music="chase", rain=True, build=level_5,
          chase=dict(mode="delay", delay=5.0, speed=68.0, accel=0.5, max_speed=94.0),
          mission=[dict(type="friend", text="Encuentra a tu amigo en la tienda del barrio"),
-                  dict(type="collect", count=14, text="Recoge 14 bocadillos"),
+                  dict(type="collect", count=14, text="Recoge 14 granizados"),
                   dict(type="reach_exit", text="Llega a la meta")],
          intro="intro_level_05", outro=None,
          friend=dict(id="rulos", dialogue="friend_rulos"),
@@ -457,7 +457,7 @@ def main():
         with open(os.path.join(out_dir, lv["id"] + ".json"), "w", encoding="utf-8") as f:
             json.dump(data, f, ensure_ascii=False, indent=1)
         index.append(dict(id=lv["id"], title=lv["title"], scene="res://scenes/levels/%s.tscn" % lv["id"]))
-        print(lv["id"], "ancho", w, "bocadillos", "".join(rows).count("o"), "pistas", "".join(rows).count("p"))
+        print(lv["id"], "ancho", w, "granizados", "".join(rows).count("o"), "pistas", "".join(rows).count("p"))
     with open(os.path.join(out_dir, "levels.json"), "w", encoding="utf-8") as f:
         json.dump(dict(levels=index), f, ensure_ascii=False, indent=1)
 

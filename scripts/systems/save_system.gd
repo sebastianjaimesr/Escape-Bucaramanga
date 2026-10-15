@@ -20,7 +20,7 @@ func save_game() -> bool:
 		"current_level": GameState.current_level,
 		"unlocked_level": GameState.unlocked_level,
 		"lives": GameState.lives,
-		"best_bocadillos": GameState.best_bocadillos,
+		"best_granizados": GameState.best_granizados,
 		"intros_seen": GameState.intros_seen,
 		"settings": GameState.settings,
 	}
@@ -44,7 +44,7 @@ func load_game() -> bool:
 	GameState.current_level = int(data.get("current_level", 0))
 	GameState.unlocked_level = int(data.get("unlocked_level", 0))
 	GameState.lives = clampi(int(data.get("lives", GameState.MAX_LIVES)), 1, GameState.MAX_LIVES)
-	GameState.best_bocadillos = data.get("best_bocadillos", {})
+	GameState.best_granizados = data.get("best_granizados", {})
 	GameState.intros_seen = data.get("intros_seen", {})
 	var s: Variant = data.get("settings", {})
 	if s is Dictionary:

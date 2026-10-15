@@ -1,6 +1,6 @@
 class_name HUD
 extends CanvasLayer
-## HUD: salud, vidas, bocadillos, pistas, amigos, objetivo y distancia de la patrulla.
+## HUD: salud, vidas, granizados, pistas, amigos, objetivo y distancia de la patrulla.
 
 var _hearts: Array[TextureRect] = []
 var _lives_label: Label
@@ -61,7 +61,7 @@ func _ready() -> void:
 	_lives_label = _label("x5", 20)
 	counters.add_child(_lives_label)
 	var boca_icon := TextureRect.new()
-	boca_icon.texture = SpriteFactory.atlas("res://assets/sprites/bocadillo.png", Rect2(0, 0, 16, 16))
+	boca_icon.texture = SpriteFactory.atlas("res://assets/sprites/granizado.png", Rect2(0, 0, 16, 16))
 	boca_icon.custom_minimum_size = Vector2(28, 28)
 	boca_icon.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
 	boca_icon.texture_filter = CanvasItem.TEXTURE_FILTER_NEAREST
@@ -154,7 +154,7 @@ func _ready() -> void:
 
 	GameState.health_changed.connect(_on_health_changed)
 	GameState.lives_changed.connect(_on_lives_changed)
-	GameState.bocadillos_changed.connect(_on_bocadillos_changed)
+	GameState.granizados_changed.connect(_on_granizados_changed)
 	GameState.pistas_changed.connect(_on_pistas_changed)
 	GameState.friends_changed.connect(_on_friends_changed)
 	refresh_all()
@@ -180,7 +180,7 @@ func _set_bar_color(c: Color) -> void:
 func refresh_all() -> void:
 	_on_health_changed(GameState.health, GameState.MAX_HEALTH)
 	_on_lives_changed(GameState.lives)
-	_on_bocadillos_changed(GameState.level_bocadillos)
+	_on_granizados_changed(GameState.level_granizados)
 	_on_pistas_changed(GameState.level_pistas)
 	_on_friends_changed(GameState.friends)
 
@@ -247,7 +247,7 @@ func _on_lives_changed(lives: int) -> void:
 	_lives_label.text = "x%d" % lives
 
 
-func _on_bocadillos_changed(count: int) -> void:
+func _on_granizados_changed(count: int) -> void:
 	_boca_label.text = str(count)
 
 

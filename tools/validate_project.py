@@ -154,7 +154,7 @@ def check_levels():
                 errors.append("%s: personaje del amigo inexistente" % lid)
         for m in d.get("mission", []):
             if m["type"] == "collect" and flat.count("o") < m["count"]:
-                errors.append("%s: la misión pide %d bocadillos y hay %d" % (lid, m["count"], flat.count("o")))
+                errors.append("%s: la misión pide %d granizados y hay %d" % (lid, m["count"], flat.count("o")))
             if m["type"] == "pistas" and flat.count("p") < m["count"]:
                 errors.append("%s: la misión pide %d pistas y hay %d" % (lid, m["count"], flat.count("p")))
         ok, far = reachable(rows)

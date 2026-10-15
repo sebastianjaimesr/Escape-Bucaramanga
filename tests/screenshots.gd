@@ -33,7 +33,7 @@ func _ready() -> void:
 			level.camera.snap_to_target()
 		await _wait(1.2)
 		_shot("%02d_%s" % [i + 1, GameState.levels[i]["id"]])
-	GameState.last_result = {"title": "Nivel 1: Calles nocturnas", "bocadillos": 21, "total_bocadillos": 30, "time": 95.0, "lives": 4}
+	GameState.last_result = {"title": "Nivel 1: Calles nocturnas", "granizados": 21, "total_granizados": 30, "time": 95.0, "lives": 4}
 	SceneTransition.change_scene("res://scenes/menus/victory.tscn")
 	await SceneTransition.transition_finished
 	await _wait(0.8)
@@ -51,5 +51,6 @@ func _wait(seconds: float) -> void:
 
 
 func _shot(name: String) -> void:
+	print("captura ", name)
 	var img := get_viewport().get_texture().get_image()
 	img.save_png(OUT + name + ".png")

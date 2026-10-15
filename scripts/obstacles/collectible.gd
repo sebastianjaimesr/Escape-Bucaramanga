@@ -1,7 +1,8 @@
 extends Area2D
-## Coleccionables: bocadillo (puntos/misiones), pista (misión del CAI) y corazón (salud).
+## Coleccionables: granizado (puntos/misiones), pista (misión del CAI), corazón (salud)
+## y vida extra (frente a las tiendas de granizado).
 
-@export_enum("bocadillo", "pista", "heart") var kind := "bocadillo"
+@export_enum("granizado", "pista", "heart", "life") var kind := "granizado"
 
 var _base_y := 0.0
 var _time := 0.0
@@ -24,14 +25,16 @@ func _ready() -> void:
 			spr.sprite_frames = SpriteFactory.strip_frames("res://assets/sprites/pista.png", Vector2i(16, 16), 3.0)
 		"heart":
 			spr.sprite_frames = SpriteFactory.strip_frames("res://assets/sprites/heart_pickup.png", Vector2i(16, 16), 1.0)
+		"life":
+			spr.sprite_frames = SpriteFactory.strip_frames("res://assets/sprites/life_pickup.png", Vector2i(16, 16), 1.0)
 		_:
-			spr.sprite_frames = SpriteFactory.strip_frames("res://assets/sprites/bocadillo.png", Vector2i(16, 16), 6.0)
+			spr.sprite_frames = SpriteFactory.strip_frames("res://assets/sprites/granizado.png", Vector2i(16, 16), 6.0)
 	add_child(spr)
 	spr.play()
-	if kind != "bocadillo":
+	if kind != "granizado":
 		var glow := PointLight2D.new()
 		glow.texture = load("res://assets/sprites/light.png")
-		glow.color = Color(1.0, 0.9, 0.4) if kind == "pista" else Color(1.0, 0.3, 0.4)
+		glow.color = {"pista": Color(1.0, 0.9, 0.4), "life": Color(0.3, 1.0, 0.6)}.get(kind, Color(1.0, 0.3, 0.4))
 		glow.energy = 0.7
 		glow.texture_scale = 0.6
 		add_child(glow)
@@ -61,8 +64,13 @@ func _on_body_entered(body: Node2D) -> void:
 			AudioManager.play_sfx("checkpoint")
 			Effects.burst(parent, global_position, Color(1, 0.3, 0.4), 12, 80.0)
 			Effects.floating_text(parent, global_position, "+1", Color(1, 0.5, 0.6))
+		"life":
+			GameState.add_life()
+			AudioManager.play_sfx("friend")
+			Effects.burst(parent, global_position, Color(0.3, 1, 0.6), 16, 100.0)
+			Effects.floating_text(parent, global_position, "¡+1 vida!", Color(0.5, 1, 0.7))
 		_:
-			GameState.add_bocadillo()
+			GameState.add_granizado()
 			AudioManager.play_sfx("collect", 0.05)
 			Effects.burst(parent, global_position, Color(0.95, 0.35, 0.4), 8, 70.0, 0.4)
 	queue_free()

@@ -19,7 +19,7 @@ Fecha: 13 de octubre de 2026. Motor usado para las pruebas: **Godot 4.7.2 establ
 | Los 7 niveles se pueden completar con la física real | `tests/bot_runner.tscn` (bot automático) | 7 de 7 |
 | Flujo menú → nivel → introducción → persecución | `tests/flow_check.tscn` | OK |
 | Exportación web | `--export-release "Web"` | `build/web/` generado (≈40 MB, casi todo el motor) |
-| Juego web en navegador | Servido en local y abierto en navegador | Menú, nivel 1, diálogo, movimiento, bocadillos y persecución funcionando, sin errores en consola |
+| Juego web en navegador | Servido en local y abierto en navegador | Menú, nivel 1, diálogo, movimiento, granizados y persecución funcionando, sin errores en consola |
 
 El bot encontró 5 tramos injustos (un obstáculo justo antes de un hueco o escalones demasiado angostos) en los niveles 1, 3, 4, 6 y 7; se corrigieron en `tools/build_levels.py`.
 
@@ -29,7 +29,7 @@ El bot encontró 5 tramos injustos (un obstáculo justo antes de un hueco o esca
 - Protagonista y 3 amigos con 7 animaciones cada uno; dron patrulla, drones vigía y perros.
 - Persecución con dificultad progresiva por nivel y por tiempo, barra de distancia en el HUD.
 - Plataformas fijas, de un sentido y móviles; carros; barreras intermitentes; vidrios y conos.
-- Vidas, salud, puntos de control, bocadillos, pistas, corazones, misiones.
+- Vidas, salud, puntos de control, granizados, pistas, corazones, misiones.
 - Diálogos en español con retratos e historia completa con final.
 - Menú, selección de nivel, opciones de audio, pausa, derrota, victoria, final y créditos.
 - Guardado de progreso, música y efectos originales, lluvia opcional, partículas, luces nocturnas.

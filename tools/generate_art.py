@@ -1,4 +1,4 @@
-﻿"""Genera todo el pixel art original de Escape de Bucaramanga.
+"""Genera todo el pixel art original de Escape de Bucaramanga.
 
 Uso:  py tools/generate_art.py
 Requiere Pillow y numpy. Todos los recursos son originales y procedurales.
@@ -76,26 +76,34 @@ CHARACTERS = {
         print_color=hexc("#f6f1e9"), pants=hexc("#3b6fb6"), rips=hexc("#a9c6ea"),
         shoes=hexc("#f4f4f4"), shoe_detail=hexc("#d7263d"), backpack=hexc("#151515"),
         bracelet=hexc("#f2c14e"), skin=SKIN, glasses=False, shorts=False, cap=None),
-    # Amigo 1 "Gorra": gorra verde hacia atrÃ¡s, buzo verde, joggers negros.
+    # Amigo "Buitrago": gorra verde hacia atrás, buzo verde, joggers negros.
     "friend_gorra": dict(
         hair=hexc("#2a1d14"), hair_style="short", shirt=hexc("#2f8f5b"),
         print_color=hexc("#9fe2bf"), pants=hexc("#26262e"), rips=None,
         shoes=hexc("#9a9aa6"), shoe_detail=hexc("#2f8f5b"), backpack=None,
         bracelet=None, skin=hexc("#b77b52"), glasses=False, shorts=False,
         cap=hexc("#1f6b43")),
-    # Amigo 2 "Rulos": cabello rizado voluminoso, camiseta amarilla, bermuda beige.
+    # Amigo "Diaz": cabello rizado voluminoso, camiseta amarilla, bermuda beige.
     "friend_rulos": dict(
         hair=hexc("#3a2418"), hair_style="curly", shirt=hexc("#f2c14e"),
         print_color=hexc("#e07a1f"), pants=hexc("#c8b28a"), rips=None,
         shoes=hexc("#2b2b2b"), shoe_detail=hexc("#f4f4f4"), backpack=None,
         bracelet=None, skin=hexc("#8d5a3b"), glasses=False, shorts=True, cap=None),
-    # Amigo 3 "Gafas": cabello largo, gafas, chaqueta azul sobre camiseta blanca.
+    # Amigo "Gordo": personaje corpulento, camiseta azul amplia, gafas, cabello corto.
     "friend_gafas": dict(
-        hair=hexc("#4a2e1f"), hair_style="long", shirt=hexc("#2e4a8f"),
-        print_color=hexc("#f4f4f4"), pants=hexc("#1f2440"), rips=None,
-        shoes=hexc("#5a3a26"), shoe_detail=hexc("#2b1a10"), backpack=None,
-        bracelet=None, skin=hexc("#d9a27a"), glasses=True, shorts=False, cap=None),
+        hair=hexc("#2a1d14"), hair_style="short", shirt=hexc("#2e5fa8"),
+        print_color=hexc("#f2c14e"), pants=hexc("#3a3a46"), rips=None,
+        shoes=hexc("#f4f4f4"), shoe_detail=hexc("#2e5fa8"), backpack=None,
+        bracelet=None, skin=hexc("#d9a27a"), glasses=True, shorts=False, cap=None, heavy=True),
 }
+
+# Policía ficticio (reemplaza al perro): uniforme verde, chaleco reflectivo y gorra.
+POLICE = dict(
+    hair=hexc("#1b1414"), hair_style="short", shirt=hexc("#2f5d3a"),
+    print_color=hexc("#d8ff3d"), pants=hexc("#24432c"), rips=None,
+    shoes=hexc("#15161c"), shoe_detail=hexc("#15161c"), backpack=None,
+    bracelet=None, skin=hexc("#b77b52"), glasses=False, shorts=False,
+    cap=hexc("#1f3d28"), cap_forward=True, vest=True)
 
 FRAME = 32
 ANIMS = ["idle", "walk", "run", "jump", "fall", "hurt", "interact"]
@@ -167,8 +175,9 @@ def draw_character(spec, pose):
             thick_line(d, hip, knee, color, 3)
             thick_line(d, knee, foot, skin if front else shade(skin, 0.8), 2)
         else:
-            thick_line(d, hip, knee, color, 3)
-            thick_line(d, knee, foot, color, 3)
+            lw = 4 if spec.get("heavy", False) else 3
+            thick_line(d, hip, knee, color, lw)
+            thick_line(d, knee, foot, color, lw)
             if spec["rips"] is not None and front:
                 d.point((round(knee[0]), round(knee[1])), fill=spec["rips"])
                 d.point((round(knee[0]) + 1, round(knee[1]) - 1), fill=spec["rips"])
@@ -205,14 +214,27 @@ def draw_character(spec, pose):
     leg(pose["front"], pants, True)
     # Torso (camiseta amplia, ligeramente inclinada)
     shirt = spec["shirt"]
-    d.polygon([(12 + lean, 12 + bob), (20 + lean, 12 + bob), (20, 22 + bob), (12, 22 + bob)], fill=shirt)
-    d.line([(12, 22 + bob), (20, 22 + bob)], fill=shade(shirt, 0.8))
+    heavy = spec.get("heavy", False)
+    if heavy:
+        d.polygon([(10 + lean, 12 + bob), (21 + lean, 12 + bob), (23, 17 + bob), (22, 23 + bob), (10, 23 + bob)],
+                  fill=shirt)
+        d.line([(10, 23 + bob), (22, 23 + bob)], fill=shade(shirt, 0.8))
+        d.line([(22, 18 + bob), (22, 21 + bob)], fill=shade(shirt, 0.8))  # barriga
+    else:
+        d.polygon([(12 + lean, 12 + bob), (20 + lean, 12 + bob), (20, 22 + bob), (12, 22 + bob)], fill=shirt)
+        d.line([(12, 22 + bob), (20, 22 + bob)], fill=shade(shirt, 0.8))
+    if spec.get("vest", False):
+        vest = spec["print_color"]
+        d.rectangle([13 + lean, 13 + bob, 19 + lean, 20 + bob], fill=vest)
+        d.line([(13 + lean, 17 + bob), (19 + lean, 17 + bob)], fill=hexc("#e8ecf2"))
+        d.line([(13 + lean, 18 + bob), (19 + lean, 18 + bob)], fill=hexc("#9aa0ad"))
     if spec["backpack"] is not None:
         d.line([(14 + lean, 12 + bob), (13, 20 + bob)], fill=spec["backpack"])
     # Estampado
     pc = spec["print_color"]
-    d.rectangle([16 + lean, 15 + bob, 18 + lean, 17 + bob], fill=pc)
-    d.point((17 + lean, 16 + bob), fill=shade(shirt, 0.6))
+    if not spec.get("vest", False):
+        d.rectangle([16 + lean, 15 + bob, 18 + lean, 17 + bob], fill=pc)
+        d.point((17 + lean, 16 + bob), fill=shade(shirt, 0.6))
     if spec["hair_style"] == "long":  # chaqueta abierta con camiseta clara
         d.line([(19 + lean, 13 + bob), (19, 21 + bob)], fill=pc)
     # Cabeza
@@ -221,6 +243,9 @@ def draw_character(spec, pose):
     d.rectangle([hx, hy, hx + 6, hy + 7], fill=skin)
     d.point((hx, hy), fill=(0, 0, 0, 0))
     d.point((hx + 6, hy + 7), fill=(0, 0, 0, 0))
+    if spec.get("heavy", False):
+        d.rectangle([hx - 1, hy + 2, hx + 7, hy + 8], fill=skin)
+        d.line([(hx + 2, hy + 8), (hx + 6, hy + 8)], fill=shade(skin, 0.85))  # papada
     d.point((hx + 2, hy + 4), fill=SKIN_DARK)  # oreja
     d.point((hx + 5, hy + 3), fill=(25, 18, 22, 255))  # ojo
     if pose["open_mouth"]:
@@ -244,7 +269,11 @@ def draw_character(spec, pose):
     if spec["cap"] is not None:
         cap = spec["cap"]
         d.rectangle([hx - 1, hy - 2, hx + 6, hy + 1], fill=cap)
-        d.rectangle([hx - 4, hy, hx - 1, hy + 1], fill=shade(cap, 0.75))  # visera hacia atrÃ¡s
+        if spec.get("cap_forward", False):
+            d.rectangle([hx + 5, hy, hx + 9, hy + 1], fill=shade(cap, 0.75))  # visera hacia adelante
+            d.point((hx + 2, hy - 1), fill=hexc("#f2c14e"))  # insignia genérica
+        else:
+            d.rectangle([hx - 4, hy, hx - 1, hy + 1], fill=shade(cap, 0.75))  # visera hacia atrás
     if spec["glasses"]:
         d.line([(hx + 3, hy + 3), (hx + 7, hy + 3)], fill=(20, 20, 30, 255))
         d.point((hx + 5, hy + 3), fill=(170, 220, 255, 255))
@@ -270,14 +299,23 @@ def make_character_sheets():
             for i in range(ANIM_FRAMES[anim]):
                 sheet.paste(draw_character(spec, pose_for(anim, i)), (i * FRAME, row * FRAME))
         sheet.save(path("characters", name + ".png"))
-        # Retrato 4x para diÃ¡logos (vista lateral idle, ampliada sin filtrado)
+        # Retrato 4x para diálogos (vista lateral idle, ampliada sin filtrado)
         face = draw_character(spec, pose_for("idle", 0)).crop((6, 0, 26, 20))
         face = face.resize((80, 80), Image.NEAREST)
         face.save(path("characters", name + "_portrait.png"))
+    # Policía: fila 0 = caminar (6 cuadros), fila 1 = alto/idle (4 cuadros)
+    sheet = Image.new("RGBA", (FRAME * 6, FRAME * 2), (0, 0, 0, 0))
+    for i in range(6):
+        sheet.paste(draw_character(POLICE, pose_for("walk", i)), (i * FRAME, 0))
+    for i in range(4):
+        pose = pose_for("interact", i)
+        pose["open_mouth"] = True
+        sheet.paste(draw_character(POLICE, pose), (i * FRAME, FRAME))
+    sheet.save(path("sprites", "police.png"))
 
 
 # ---------------------------------------------------------------------------
-# Enemigos y persecuciÃ³n
+# Enemigos y persecución
 # ---------------------------------------------------------------------------
 
 def make_patrol_drone():
@@ -337,51 +375,144 @@ def make_small_drone():
     sheet.save(path("sprites", "drone.png"))
 
 
-def make_dog():
-    w, h = 24, 16
-    sheet = Image.new("RGBA", (w * 4, h), (0, 0, 0, 0))
-    fur = hexc("#9c6b3c")
-    dark = hexc("#6e4524")
-    for f in range(4):
-        img = Image.new("RGBA", (w, h), (0, 0, 0, 0))
-        d = ImageDraw.Draw(img)
-        bob = 1 if f % 2 else 0
-        d.rectangle([5, 6 + bob, 17, 10 + bob], fill=fur)  # cuerpo
-        d.rectangle([16, 3 + bob, 21, 8 + bob], fill=fur)  # cabeza
-        d.rectangle([21, 6 + bob, 22, 7 + bob], fill=dark)  # hocico
-        d.point((19, 5 + bob), fill=(20, 15, 15, 255))
-        d.rectangle([16, 2 + bob, 17, 3 + bob], fill=dark)  # oreja
-        d.line([(5, 6 + bob), (2, 3 + bob + (f % 2))], fill=fur, width=1)  # cola
-        offs = [(-2, 2), (0, 0), (2, -2), (0, 0)][f]
-        for lx, o in ((7, offs[0]), (9, offs[1]), (14, offs[1] * -1), (16, offs[0] * -1)):
-            d.line([(lx, 10 + bob), (lx + o, 14)], fill=dark if lx in (9, 14) else fur)
-        d.rectangle([10, 6 + bob, 13, 7 + bob], fill=hexc("#c79a63"))
-        d.point((18, 8 + bob), fill=hexc("#d7263d"))  # collar
-        sheet.paste(add_outline(img), (f * w, 0))
-    sheet.save(path("sprites", "dog.png"))
+# ---------------------------------------------------------------------------
+# Objetos y obstáculos
+# ---------------------------------------------------------------------------
+
+def granizado_icon(f=0, size=16):
+    """Vaso transparente con hielo raspado en capas de sirope (rojo, amarillo, verde),
+    leche condensada encima y pitillo. f anima un pequeño brillo."""
+    img = Image.new("RGBA", (16, 16), (0, 0, 0, 0))
+    d = ImageDraw.Draw(img)
+    bob = [0, -1, -1, 0][f % 4]
+    # vaso (trapecio)
+    d.polygon([(4, 7 + bob), (11, 7 + bob), (10, 15 + bob), (5, 15 + bob)], fill=hexc("#dff4ff", 230))
+    # capas de sirope dentro del vaso
+    d.line([(5, 9 + bob), (10, 9 + bob)], fill=hexc("#e8253a"))
+    d.line([(5, 10 + bob), (10, 10 + bob)], fill=hexc("#e8253a"))
+    d.line([(5, 11 + bob), (10, 11 + bob)], fill=hexc("#ffc928"))
+    d.line([(6, 12 + bob), (9, 12 + bob)], fill=hexc("#ffc928"))
+    d.line([(6, 13 + bob), (9, 13 + bob)], fill=hexc("#33c759"))
+    d.line([(6, 14 + bob), (9, 14 + bob)], fill=hexc("#33c759"))
+    # domo de hielo raspado con sirope
+    d.ellipse([3, 2 + bob, 12, 9 + bob], fill=hexc("#ff4d6d"))
+    d.ellipse([4, 2 + bob, 8, 6 + bob], fill=hexc("#ffd166"))
+    d.point((10, 4 + bob), fill=hexc("#7bea8f"))
+    # leche condensada
+    d.line([(5, 3 + bob), (10, 3 + bob)], fill=hexc("#fff8e7"))
+    d.point((6, 4 + bob), fill=hexc("#fff8e7"))
+    d.point((9, 5 + bob), fill=hexc("#fff8e7"))
+    # pitillo
+    d.line([(9, 0 + bob), (11, 3 + bob)], fill=hexc("#3d7bff"))
+    if f in (1, 2):
+        d.point((5, 8 + bob), fill=(255, 255, 255, 255))
+    return img
 
 
-# ---------------------------------------------------------------------------
-# Objetos y obstÃ¡culos
-# ---------------------------------------------------------------------------
+SHOP_W, SHOP_H = 80, 64
+
+
+def _shop_shelves(d, x0, y0, x1, y1, rng):
+    """Estantes con productos de colores vistos a través de la vitrina."""
+    for sy in range(y0 + 4, y1 - 2, 7):
+        d.line([(x0, sy + 4), (x1, sy + 4)], fill=hexc("#9aa0ad"))
+        x = x0 + 1
+        while x < x1 - 2:
+            c = rng.choice(["#e8253a", "#ffc928", "#33c759", "#3d7bff", "#ff7ab8", "#f4f4f4"])
+            d.rectangle([x, sy + 1, x + 1, sy + 3], fill=hexc(c))
+            x += 3
+
+
+def make_shops():
+    rng = random.Random(77)
+    # OXXO: franja roja, letrero amarillo con letras rojas
+    img = Image.new("RGBA", (SHOP_W, SHOP_H), (0, 0, 0, 0))
+    d = ImageDraw.Draw(img)
+    d.rectangle([0, 10, 79, 63], fill=hexc("#e9e4da"))
+    d.rectangle([0, 0, 79, 15], fill=hexc("#d7192a"))
+    d.rectangle([24, 2, 55, 13], fill=hexc("#ffcc1f"))
+    draw_text(img, 28, 4, "OXXO", hexc("#d7192a"))
+    d.rectangle([4, 20, 52, 58], fill=hexc("#fff6d6"))
+    _shop_shelves(d, 5, 21, 51, 57, rng)
+    d.rectangle([58, 22, 75, 63], fill=hexc("#3a3f55"))
+    d.rectangle([60, 24, 73, 63], fill=hexc("#cfefff"))
+    d.line([(66, 24), (66, 63)], fill=hexc("#8a90a2"))
+    d.rectangle([0, 16, 79, 18], fill=hexc("#ffcc1f"))
+    add_outline(img).save(path("sprites", "shop_oxxo.png"))
+
+    # D1: fachada blanca, letrero rojo grande
+    img = Image.new("RGBA", (SHOP_W, SHOP_H), (0, 0, 0, 0))
+    d = ImageDraw.Draw(img)
+    d.rectangle([0, 8, 79, 63], fill=hexc("#f4f4f4"))
+    d.rectangle([0, 0, 79, 18], fill=hexc("#e30613"))
+    draw_text(img, 28, 2, "D1", hexc("#ffffff"), scale=2)
+    d.rectangle([4, 24, 75, 56], fill=hexc("#fff8e8"))
+    _shop_shelves(d, 5, 25, 46, 55, rng)
+    d.rectangle([50, 28, 72, 63], fill=hexc("#2a2d3e"))
+    d.rectangle([52, 30, 70, 63], fill=hexc("#d6f3ff"))
+    for cx in (55, 63):  # carritos de mercado
+        d.rectangle([cx, 52, cx + 5, 56], outline=hexc("#e30613"))
+        d.point((cx + 1, 58), fill=hexc("#22242e"))
+        d.point((cx + 4, 58), fill=hexc("#22242e"))
+    d.rectangle([0, 19, 79, 20], fill=hexc("#b80510"))
+    add_outline(img).save(path("sprites", "shop_d1.png"))
+
+    # CC: centro comercial con fachada de vidrio y neón azul
+    img = Image.new("RGBA", (SHOP_W, SHOP_H), (0, 0, 0, 0))
+    d = ImageDraw.Draw(img)
+    d.rectangle([0, 6, 79, 63], fill=hexc("#2c3350"))
+    for gy in range(22, 60, 8):
+        for gx in range(4, 76, 9):
+            lit = rng.random() < 0.8
+            d.rectangle([gx, gy, gx + 6, gy + 5], fill=hexc("#9fdcff") if lit else hexc("#3e4a6e"))
+    d.rounded_rectangle([12, 0, 67, 18], radius=3, fill=hexc("#0e1124"))
+    d.rounded_rectangle([12, 0, 67, 18], radius=3, outline=hexc("#3dc6ff"))
+    draw_text(img, 16, 3, "CC", hexc("#3dc6ff"), scale=2)
+    draw_text(img, 38, 5, "MALL", hexc("#ff3b8d"))
+    d.rectangle([30, 46, 49, 63], fill=hexc("#1b2036"))
+    d.rectangle([32, 48, 47, 63], fill=hexc("#ffe9a8"))
+    d.line([(39, 48), (39, 63)], fill=hexc("#8a90a2"))
+    add_outline(img).save(path("sprites", "shop_cc.png"))
+
+    # GRANIZADO: puesto con toldo de colores de Colombia y vasos en el mostrador
+    img = Image.new("RGBA", (SHOP_W, SHOP_H), (0, 0, 0, 0))
+    d = ImageDraw.Draw(img)
+    d.rectangle([0, 0, 79, 13], fill=hexc("#11131c"))
+    draw_text(img, (SHOP_W - text_width("GRANIZADO")) // 2, 3, "GRANIZADO", hexc("#ff4d6d"))
+    stripes = ["#ffcd00", "#003893", "#ce1126"]
+    for i, x in enumerate(range(0, 80, 8)):
+        d.polygon([(x, 14), (x + 8, 14), (x + 8, 22), (x + 4, 25), (x, 22)], fill=hexc(stripes[i % 3]))
+    d.rectangle([2, 25, 77, 63], fill=hexc("#5a3a26"))
+    d.rectangle([6, 28, 73, 46], fill=hexc("#ffe9c7"))
+    d.rectangle([0, 46, 79, 52], fill=hexc("#f4f4f4"))  # mostrador
+    for i, cx in enumerate(range(8, 72, 13)):
+        icon = granizado_icon(i % 4)
+        img.alpha_composite(icon, (cx, 31))
+    d.rectangle([0, 52, 79, 63], fill=hexc("#8a5a33"))
+    draw_text(img, 26, 54, "+1 VIDA", hexc("#3dffa0"))
+    add_outline(img).save(path("sprites", "shop_granizado.png"))
+
 
 def make_items():
-    # Bocadillo veleÃ±o envuelto en hoja de bijao (coleccionable)
+    # Granizado colombiano: vaso con hielo raspado, siropes y leche condensada
     sheet = Image.new("RGBA", (16 * 4, 16), (0, 0, 0, 0))
     for f in range(4):
-        img = Image.new("RGBA", (16, 16), (0, 0, 0, 0))
-        d = ImageDraw.Draw(img)
-        bob = [0, -1, -1, 0][f]
-        d.rectangle([3, 5 + bob, 12, 11 + bob], fill=hexc("#5f8f2f"))
-        d.rectangle([4, 6 + bob, 11, 10 + bob], fill=hexc("#a3162d"))
-        d.rectangle([4, 6 + bob, 6, 10 + bob], fill=hexc("#f0e2c8"))  # capa de leche
-        d.line([(3, 8 + bob), (12, 8 + bob)], fill=hexc("#3f6b1f"))
-        if f in (1, 2):
-            d.point((10, 6 + bob), fill=(255, 255, 255, 255))
+        img = granizado_icon(f)
         sheet.paste(add_outline(img), (f * 16, 0))
-    sheet.save(path("sprites", "bocadillo.png"))
+    sheet.save(path("sprites", "granizado.png"))
 
-    # Pista (volante con informaciÃ³n)
+    # Vida extra (cara del protagonista con "+1")
+    img = Image.new("RGBA", (16, 16), (0, 0, 0, 0))
+    face = draw_character(CHARACTERS["protagonist"], pose_for("idle", 0)).crop((9, 1, 25, 17))
+    img.alpha_composite(face, (0, 0))
+    d = ImageDraw.Draw(img)
+    d.rectangle([9, 10, 15, 15], fill=hexc("#3dffa0"))
+    d.line([(10, 13), (12, 13)], fill=(10, 40, 20, 255))
+    d.line([(11, 12), (11, 14)], fill=(10, 40, 20, 255))
+    d.line([(14, 11), (14, 14)], fill=(10, 40, 20, 255))
+    add_outline(img).save(path("sprites", "life_pickup.png"))
+
+    # Pista (volante con información)
     sheet = Image.new("RGBA", (32, 16), (0, 0, 0, 0))
     for f in range(2):
         img = Image.new("RGBA", (16, 16), (0, 0, 0, 0))
@@ -394,7 +525,7 @@ def make_items():
         sheet.paste(add_outline(img, hexc("#f2c14e") if f else OUTLINE), (f * 16, 0))
     sheet.save(path("sprites", "pista.png"))
 
-    # CorazÃ³n de vida extra
+    # Corazón de vida extra
     img = Image.new("RGBA", (16, 16), (0, 0, 0, 0))
     heart(ImageDraw.Draw(img), 2, 3, hexc("#ff3d5a"))
     add_outline(img).save(path("sprites", "heart_pickup.png"))
@@ -419,7 +550,7 @@ def make_obstacles():
     d.line([(0, 15), (15, 15)], fill=hexc("#5d7d8c"))
     add_outline(img).save(path("sprites", "hazard_glass.png"))
 
-    # Cono de trÃ¡nsito (peligro alternativo)
+    # Cono de tránsito (peligro alternativo)
     img = Image.new("RGBA", (16, 16), (0, 0, 0, 0))
     d = ImageDraw.Draw(img)
     d.polygon([(4, 14), (8, 2), (11, 14)], fill=hexc("#ff7a1a"))
@@ -427,7 +558,7 @@ def make_obstacles():
     d.rectangle([2, 14, 13, 15], fill=hexc("#ff7a1a"))
     add_outline(img).save(path("sprites", "hazard_cone.png"))
 
-    # Plataforma mÃ³vil 48x8
+    # Plataforma móvil 48x8
     img = Image.new("RGBA", (48, 10), (0, 0, 0, 0))
     d = ImageDraw.Draw(img)
     d.rectangle([0, 0, 47, 7], fill=hexc("#5b6478"))
@@ -436,6 +567,36 @@ def make_obstacles():
         d.rectangle([x, 3, x + 1, 4], fill=hexc("#f2c14e"))
     d.rectangle([2, 8, 45, 9], fill=hexc("#ff3b8d", 160))
     add_outline(img).save(path("sprites", "moving_platform.png"))
+
+    # Moto (plataforma móvil): sillín largo y plano para pararse encima. 2 cuadros (rueda girando)
+    sheet = Image.new("RGBA", (56 * 2, 28), (0, 0, 0, 0))
+    for f in range(2):
+        img = Image.new("RGBA", (56, 28), (0, 0, 0, 0))
+        d = ImageDraw.Draw(img)
+        dark = hexc("#22242e")
+        red = hexc("#d7263d")
+        for wx in (12, 44):
+            d.ellipse([wx - 7, 14, wx + 7, 27], fill=hexc("#15161c"))
+            d.ellipse([wx - 4, 17, wx + 4, 24], fill=hexc("#8a90a2"))
+            if f == 0:
+                d.line([(wx - 4, 20), (wx + 4, 20)], fill=dark)
+            else:
+                d.line([(wx, 17), (wx, 24)], fill=dark)
+            d.point((wx, 20), fill=hexc("#d8dce6"))
+        d.polygon([(10, 12), (46, 12), (42, 19), (16, 19)], fill=dark)  # chasis
+        d.rectangle([20, 15, 30, 19], fill=hexc("#5b6478"))  # motor
+        d.line([(20, 20), (8, 20)], fill=hexc("#9aa0ad"), width=2)  # exosto
+        d.polygon([(32, 8), (46, 8), (44, 13), (34, 13)], fill=red)  # tanque
+        d.rectangle([6, 5, 34, 9], fill=hexc("#111218"))  # sillín largo
+        d.line([(6, 5), (34, 5)], fill=hexc("#3a3d4a"))
+        d.rectangle([4, 9, 9, 11], fill=red)  # guardabarro trasero
+        d.point((4, 10), fill=hexc("#ff2a3d"))  # stop
+        d.line([(46, 9), (50, 2)], fill=hexc("#9aa0ad"), width=2)  # horquilla/manubrio
+        d.line([(48, 2), (53, 2)], fill=dark, width=2)
+        d.rectangle([50, 6, 54, 9], fill=hexc("#fff4b0"))  # farola
+        d.line([(46, 11), (44, 20)], fill=hexc("#9aa0ad"), width=2)
+        sheet.paste(add_outline(img), (f * 56, 0))
+    sheet.save(path("sprites", "moto.png"))
 
     # Barrera del CAI 10x48 (2 cuadros: cerrada con luz roja / luz apagada)
     sheet = Image.new("RGBA", (24, 48), (0, 0, 0, 0))
@@ -449,7 +610,7 @@ def make_obstacles():
         sheet.paste(add_outline(img), (f * 12, 0))
     sheet.save(path("sprites", "barrier.png"))
 
-    # Punto de control: poste de parada con luz neÃ³n (apagado/encendido)
+    # Punto de control: poste de parada con luz neón (apagado/encendido)
     sheet = Image.new("RGBA", (32, 40), (0, 0, 0, 0))
     for f in range(2):
         img = Image.new("RGBA", (16, 40), (0, 0, 0, 0))
@@ -479,7 +640,7 @@ def make_obstacles():
         sheet.paste(add_outline(img), (f * 48, 0))
     sheet.save(path("sprites", "exit.png"))
 
-    # PartÃ­culas
+    # Partículas
     img = Image.new("RGBA", (4, 4), (255, 255, 255, 255))
     img.save(path("sprites", "particle.png"))
     img = Image.new("RGBA", (1, 6), (0, 0, 0, 0))
@@ -532,7 +693,7 @@ def make_props():
     d.rectangle([16, 7, 21, 8], fill=hexc("#ffe9a8"))
     add_outline(img).save(path("sprites", "lamp.png"))
 
-    # SeÃ±ales de trÃ¡nsito
+    # Señales de tránsito
     img = Image.new("RGBA", (16, 36), (0, 0, 0, 0))
     d = ImageDraw.Draw(img)
     d.rectangle([7, 12, 8, 35], fill=hexc("#8a90a2"))
@@ -570,7 +731,7 @@ def make_props():
                 d.point((x, 19), fill=(20, 20, 20, 255))
         add_outline(img).save(path("sprites", name + ".png"))
 
-    # Patrulla estacionada (decoraciÃ³n, con luces)
+    # Patrulla estacionada (decoración, con luces)
     img = Image.new("RGBA", (64, 30), (0, 0, 0, 0))
     d = ImageDraw.Draw(img)
     d.rounded_rectangle([1, 14, 62, 24], radius=3, fill=hexc("#e8ecf2"))
@@ -585,23 +746,8 @@ def make_props():
         d.ellipse([wx - 2, 22, wx + 2, 26], fill=hexc("#9aa0ad"))
     add_outline(img).save(path("sprites", "patrol_car.png"))
 
-    # Palmera
-    img = Image.new("RGBA", (48, 88), (0, 0, 0, 0))
-    d = ImageDraw.Draw(img)
-    trunk = hexc("#6b4a2e")
-    for y in range(20, 88, 1):
-        x = 24 + int(3 * math.sin(y / 18.0))
-        d.rectangle([x - 2, y, x + 1, y], fill=trunk if (y // 3) % 2 else shade(trunk, 0.8))
-    leaf = hexc("#2f7d4a")
-    for ang in (-160, -120, -60, -20, -95):
-        a = math.radians(ang)
-        for t in range(22):
-            x = 24 + math.cos(a) * t
-            y = 20 + math.sin(a) * t * 0.6 + (t * t) / 40.0
-            d.rectangle([round(x) - 1, round(y), round(x) + 1, round(y) + 1], fill=leaf if t % 3 else shade(leaf, 1.3))
-    add_outline(img).save(path("sprites", "palm.png"))
 
-    # Ãrbol frondoso (parques)
+    # Árbol frondoso (parques)
     img = Image.new("RGBA", (56, 72), (0, 0, 0, 0))
     d = ImageDraw.Draw(img)
     d.rectangle([25, 36, 30, 71], fill=hexc("#5a3d27"))
@@ -612,7 +758,7 @@ def make_props():
         r = random.randint(4, 8)
         d.ellipse([cx - r, cy - r, cx + r, cy + r], fill=random.choice([hexc("#2b6b3f"), hexc("#357f4a"), hexc("#23573a")]))
     for _ in range(15):
-        d.point((random.randint(10, 46), random.randint(8, 38)), fill=hexc("#f28fb1"))  # flores de guayacÃ¡n
+        d.point((random.randint(10, 46), random.randint(8, 38)), fill=hexc("#f28fb1"))  # flores de guayacán
     add_outline(img).save(path("sprites", "tree.png"))
 
     # Banca
@@ -650,22 +796,7 @@ def make_props():
     d.rectangle([64, 0, 67, 2], fill=hexc("#3d7bff"))
     add_outline(img).save(path("sprites", "cai.png"))
 
-    # Vitrinas de tiendas con neÃ³n
-    for name, word, neon, glow in (("shop_1", "TIENDA", "#ff3b8d", "#ffd6ea"),
-                                   ("shop_2", "CAFE", "#3dffa0", "#d6ffe9"),
-                                   ("shop_3", "MODA", "#3dc6ff", "#d6f3ff"),
-                                   ("shop_4", "PAN", "#f2c14e", "#fff1c8")):
-        img = Image.new("RGBA", (64, 56), (0, 0, 0, 0))
-        d = ImageDraw.Draw(img)
-        d.rectangle([0, 8, 63, 55], fill=hexc("#2a2d3e"))
-        d.rectangle([4, 24, 59, 51], fill=hexc(glow, 255))
-        d.rectangle([4, 24, 59, 26], fill=hexc("#ffffff"))
-        for x in range(10, 60, 14):
-            d.rectangle([x, 36, x + 6, 51], fill=shade(hexc(neon), 0.7))
-        d.rectangle([0, 0, 63, 12], fill=hexc("#11131c"))
-        tw = text_width(word)
-        draw_text(img, (64 - tw) // 2, 3, word, hexc(neon))
-        add_outline(img).save(path("sprites", name + ".png"))
+    make_shops()
 
     # Escalera de casa / muro del barrio: matera con flores
     img = Image.new("RGBA", (16, 16), (0, 0, 0, 0))
@@ -678,7 +809,7 @@ def make_props():
 
 
 # ---------------------------------------------------------------------------
-# Tileset (16x16), una fila por temÃ¡tica
+# Tileset (16x16), una fila por temática
 # ---------------------------------------------------------------------------
 THEMES = ["calles", "comercial", "cai", "parque", "barrio", "viaducto", "final"]
 
@@ -743,7 +874,7 @@ def make_tileset():
             d.line([(4, y + 3), (9, y + 3)], fill=shade(top, 0.85))
         elif theme == "viaducto":
             d.rectangle([0, y + 1, 15, y + 2], fill=shade(top, 0.9))
-        # Plataforma de un sentido (toldo / andamio / tablÃ³n)
+        # Plataforma de un sentido (toldo / andamio / tablón)
         px = 2 * T
         if theme in ("comercial", "final"):
             for x in range(0, 16, 4):
@@ -811,7 +942,7 @@ def ridge(rng, base, amp, freq_list, width=BW):
     for x in range(width):
         y = base
         for (f, a), ph in zip(freq_list, phases):
-            # frecuencias enteras => repeticiÃ³n horizontal perfecta
+            # frecuencias enteras => repetición horizontal perfecta
             y += a * amp * math.sin(math.tau * f * x / width + ph)
         ys.append(int(y))
     return ys
@@ -841,6 +972,7 @@ def make_mountains():
 def building_row(img, rng, base_y, min_h, max_h, colors, window_chance, win_colors, seed_step=0,
                  neon=False, antenna=True):
     d = ImageDraw.Draw(img)
+    tops = []
     x = 0
     while x < BW:
         w = rng.randint(24, 56)
@@ -849,6 +981,7 @@ def building_row(img, rng, base_y, min_h, max_h, colors, window_chance, win_colo
         h = rng.randint(min_h, max_h)
         top = base_y - h
         col = rng.choice(colors)
+        tops.append((x, w, top))
         d.rectangle([x, top, x + w - 1, BH], fill=col)
         d.line([(x, top), (x + w - 1, top)], fill=shade(col, 1.25))
         for wy in range(top + 4, BH - 4, 6):
@@ -865,6 +998,7 @@ def building_row(img, rng, base_y, min_h, max_h, colors, window_chance, win_colo
             d.rectangle([x + 4, ny, x + w - 5, ny + 4], fill=nc)
             d.rectangle([x + 5, ny + 1, x + w - 6, ny + 3], fill=shade(nc, 1.4))
         x += w
+    return tops
 
 
 def make_city_far():
@@ -893,7 +1027,7 @@ def make_near_layers():
         cfg = configs[theme]
         d = ImageDraw.Draw(img)
         if theme == "parque":
-            # copas de Ã¡rboles y faroles del parque
+            # copas de árboles y faroles del parque
             for x in range(-10, BW + 10, 18):
                 r = rng.randint(16, 26)
                 cy = 270 - rng.randint(0, 20)
@@ -919,17 +1053,17 @@ def make_near_layers():
             for x in range(4, BW, 12):
                 d.point((x, deck + 3), fill=hexc("#ffe9a8"))
         else:
-            building_row(img, rng, 320, cfg["minh"], cfg["maxh"], [hexc(c) for c in cfg["colors"]],
-                         cfg["chance"], [hexc("#ffd27a"), hexc("#ffe9b0"), hexc("#a8d8ff"), hexc("#2a2238")],
-                         neon=cfg["neon"])
+            tops = building_row(img, rng, 320, cfg["minh"], cfg["maxh"], [hexc(c) for c in cfg["colors"]],
+                                cfg["chance"], [hexc("#ffd27a"), hexc("#ffe9b0"), hexc("#a8d8ff"), hexc("#2a2238")],
+                                neon=cfg["neon"], antenna=theme != "barrio")
             if theme == "barrio":
-                # tejados de barro
-                x = 0
-                while x < BW:
-                    w = rng.randint(30, 50)
-                    y = 300 - rng.randint(40, 80)
-                    d.polygon([(x - 2, y), (x + w // 2, y - 10), (x + w + 2, y)], fill=hexc("#8a3b25"))
-                    x += w
+                # tejados de barro apoyados exactamente sobre cada casa
+                for bx, bw, btop in tops:
+                    peak = max(6, bw // 4)
+                    d.polygon([(bx - 2, btop + 1), (bx + bw // 2, btop - peak), (bx + bw + 1, btop + 1)],
+                              fill=hexc("#8a3b25"))
+                    d.line([(bx - 2, btop + 1), (bx + bw + 1, btop + 1)], fill=hexc("#5e2616"))
+                    d.line([(bx + bw // 2, btop - peak), (bx + bw + 1, btop + 1)], fill=hexc("#b5532f"))
             if theme == "cai":
                 for x in range(30, BW, 120):
                     d.rectangle([x, 240, x + 30, 300], fill=hexc("#1f2f2a"))
@@ -951,7 +1085,7 @@ def make_ui():
     face = draw_character(CHARACTERS["protagonist"], pose_for("idle", 0)).crop((9, 1, 25, 17))
     face.save(path("ui", "life_icon.png"))
 
-    # Botones tÃ¡ctiles
+    # Botones táctiles
     def button(name, symbol):
         size = 64
         img = Image.new("RGBA", (size, size), (0, 0, 0, 0))
@@ -977,7 +1111,7 @@ def make_ui():
     for n in ("left", "right", "jump", "run", "action", "pause"):
         button(n, n)
 
-    # Logotipo del tÃ­tulo
+    # Logotipo del título
     line1, line2 = "ESCAPE DE", "BUCARAMANGA"
     scale2 = 6
     w = text_width(line2) * scale2 + 40
@@ -990,7 +1124,7 @@ def make_ui():
     draw_text(logo, 20, 52, line2, hexc("#fff4e0"), scale=scale2)
     add_outline(logo).save(path("ui", "logo.png"))
 
-    # Icono de la aplicaciÃ³n
+    # Icono de la aplicación
     icon = Image.new("RGBA", (128, 128), (0, 0, 0, 0))
     d = ImageDraw.Draw(icon)
     d.rounded_rectangle([0, 0, 127, 127], radius=20, fill=hexc("#1d1638"))
@@ -1005,7 +1139,6 @@ def main():
     make_character_sheets()
     make_patrol_drone()
     make_small_drone()
-    make_dog()
     make_items()
     make_obstacles()
     make_lights()

@@ -38,7 +38,7 @@ func _run_level(level_id: String) -> void:
 	await get_tree().physics_frame
 	level._chase_timer = -1.0
 	level.mission.friend_found = true
-	GameState.level_bocadillos = 999
+	GameState.level_granizados = 999
 	GameState.level_pistas = 99
 	level.mission.refresh()
 	var p := level.player
