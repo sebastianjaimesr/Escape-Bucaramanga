@@ -76,19 +76,19 @@ CHARACTERS = {
         print_color=hexc("#f6f1e9"), pants=hexc("#3b6fb6"), rips=hexc("#a9c6ea"),
         shoes=hexc("#f4f4f4"), shoe_detail=hexc("#d7263d"), backpack=hexc("#151515"),
         bracelet=hexc("#f2c14e"), skin=SKIN, glasses=False, shorts=False, cap=None),
-    # Amigo "Buitrago": gorra verde hacia atrás, buzo verde, joggers negros.
+    # Amigo "Buitrago": trigueño, gorra verde hacia atrás, buzo verde, joggers negros.
     "friend_gorra": dict(
         hair=hexc("#2a1d14"), hair_style="short", shirt=hexc("#2f8f5b"),
         print_color=hexc("#9fe2bf"), pants=hexc("#26262e"), rips=None,
         shoes=hexc("#9a9aa6"), shoe_detail=hexc("#2f8f5b"), backpack=None,
-        bracelet=None, skin=hexc("#b77b52"), glasses=False, shorts=False,
+        bracelet=None, skin=hexc("#9c6640"), glasses=False, shorts=False,
         cap=hexc("#1f6b43")),
-    # Amigo "Diaz": cabello rizado voluminoso, camiseta amarilla, bermuda beige.
+    # Amigo "Diaz": alto, piel blanca, cabello rizado, camiseta amarilla, bermuda beige.
     "friend_rulos": dict(
         hair=hexc("#3a2418"), hair_style="curly", shirt=hexc("#f2c14e"),
         print_color=hexc("#e07a1f"), pants=hexc("#c8b28a"), rips=None,
         shoes=hexc("#2b2b2b"), shoe_detail=hexc("#f4f4f4"), backpack=None,
-        bracelet=None, skin=hexc("#8d5a3b"), glasses=False, shorts=True, cap=None),
+        bracelet=None, skin=hexc("#f1cfae"), glasses=False, shorts=True, cap=None, tall=True),
     # Amigo "Gordo": personaje corpulento, camiseta azul amplia, gafas, cabello corto.
     "friend_gafas": dict(
         hair=hexc("#2a1d14"), hair_style="short", shirt=hexc("#2e5fa8"),
@@ -159,7 +159,7 @@ def pose_for(anim, i):
 def draw_character(spec, pose):
     img = Image.new("RGBA", (FRAME, FRAME), (0, 0, 0, 0))
     d = ImageDraw.Draw(img)
-    bob = pose["bob"]
+    bob = pose["bob"] - (2 if spec.get("tall", False) else 0)
     lean = pose["lean"]
     hip = (16, 21 + bob)
     shoulder = (16 + lean, 13 + bob)
