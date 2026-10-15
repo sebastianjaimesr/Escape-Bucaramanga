@@ -92,7 +92,7 @@ static func make_tileset() -> TileSet:
 	var full := PackedVector2Array([Vector2(-h, -h), Vector2(h, -h), Vector2(h, h), Vector2(-h, h)])
 	var thin := PackedVector2Array([Vector2(-h, -h), Vector2(h, -h), Vector2(h, -h + 5), Vector2(-h, -h + 5)])
 	for row in THEMES.size():
-		for col in 4:
+		for col in 8:
 			var coords := Vector2i(col, row)
 			src.create_tile(coords)
 			var td := src.get_tile_data(coords, 0)
@@ -114,7 +114,7 @@ func build_tiles() -> TileMapLayer:
 			var ch := cell(x, y)
 			var coords := Vector2i(-1, -1)
 			if ch == "#":
-				coords = Vector2i(0 if not is_solid(x, y - 1) else 1, theme_row)
+				coords = Vector2i(_fill_column(x, y), theme_row)
 			elif ch == "B":
 				coords = Vector2i(3, theme_row)
 			elif ch == "=":
@@ -122,6 +122,23 @@ func build_tiles() -> TileMapLayer:
 			if coords.x >= 0:
 				layer.set_cell(Vector2i(x, y), 0, coords)
 	return layer
+
+
+## Elige el tile de suelo: superficie, relleno con variaciones (grietas, ventanas,
+## enredaderas, murales) o relleno profundo más oscuro.
+func _fill_column(x: int, y: int) -> int:
+	if not is_solid(x, y - 1):
+		return 0
+	var depth := 1
+	while depth < 4 and is_solid(x, y - depth - 1):
+		depth += 1
+	if depth >= 3:
+		return 7
+	var h := absi((x * 73856093) ^ (y * 19349663)) % 13
+	var chance := 4 if data.get("theme", "") == "barrio" else 2
+	if h < chance:
+		return 4 + h % 3
+	return 1
 
 
 # ---------------------------------------------------------------------------

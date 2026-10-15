@@ -1,6 +1,6 @@
 {
  "id": "level_06",
- "title": "Nivel 6: El viaducto de la Novena",
+ "title": "Nivel 6: El puente de la Novena",
  "subtitle": "La persecución más exigente",
  "theme": "viaducto",
  "music": "viaduct",
@@ -15,11 +15,11 @@
  "mission": [
   {
    "type": "friend",
-   "text": "Rescata a tu amigo atrapado en el viaducto de la Novena"
+   "text": "Rescata a tu amigo atrapado en el puente de la Novena"
   },
   {
    "type": "reach_exit",
-   "text": "Cruza el viaducto de la Novena"
+   "text": "Cruza el puente de la Novena"
   }
  ],
  "intro": "intro_level_06",
@@ -29,7 +29,7 @@
   "dialogue": "friend_gafas"
  },
  "hints": [
-  "¡Corre (SHIFT) y salta! Los huecos del viaducto de la Novena son largos"
+  "¡Corre (SHIFT) y salta! Los huecos del puente de la Novena son largos"
  ],
  "tile_size": 16,
  "width": 180,

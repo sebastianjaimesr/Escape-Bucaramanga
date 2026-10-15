@@ -899,7 +899,99 @@ def make_tileset():
         d.line([(bx + 1, y + 1), (bx + 14, y + 14)], fill=shade(crate, 0.75))
         d.line([(bx + 14, y + 1), (bx + 1, y + 14)], fill=shade(crate, 0.75))
         d.line([(bx + 1, y + 1), (bx + 14, y + 1)], fill=shade(crate, 1.3))
+    img = add_fill_variants(img)
     img.save(path("tilesets", "tiles.png"))
+
+
+# Columnas extra del tileset: 4-6 variaciones de relleno, 7 relleno profundo (más oscuro)
+BRICK_PALETTE = ["#a8503a", "#9c4632", "#b35a40", "#8f402e", "#a24b36", "#b8634a"]
+
+
+def draw_brick_wall(d, x0, y0, rng, palette=BRICK_PALETTE, dark=1.0):
+    """Muro de ladrillo con color por ladrillo, mortero claro y luz en el borde superior."""
+    mortar = shade(hexc("#d9b99a"), 0.75 * dark)
+    d.rectangle([x0, y0, x0 + 15, y0 + 15], fill=mortar)
+    for row in range(4):
+        by = y0 + row * 4
+        off = 0 if row % 2 == 0 else -4
+        for bx in range(off, 16, 8):
+            col = shade(hexc(rng.choice(palette)), dark * rng.uniform(0.92, 1.06))
+            xa = max(x0, x0 + bx)
+            xb = min(x0 + 15, x0 + bx + 6)
+            if xb <= xa:
+                continue
+            d.rectangle([xa, by, xb, by + 2], fill=col)
+            d.line([(xa, by), (xb, by)], fill=shade(col, 1.18))
+            if rng.random() < 0.25:
+                d.point((rng.randint(xa, xb), by + 2), fill=shade(col, 0.8))
+
+
+def add_fill_variants(base):
+    T = 16
+    img = Image.new("RGBA", (T * 8, base.height), (0, 0, 0, 0))
+    img.paste(base, (0, 0))
+    d = ImageDraw.Draw(img)
+    rng = random.Random(1234)
+    for row, theme in enumerate(THEMES):
+        y = row * T
+        if theme == "barrio":
+            # Superficie: andén de cemento con bordillo pintado sobre muro de ladrillo
+            draw_brick_wall(d, 0, y, rng)
+            d.rectangle([0, y, 15, y + 4], fill=hexc("#c9c2b4"))
+            d.line([(0, y), (15, y)], fill=hexc("#e8e2d6"))
+            d.line([(0, y + 4), (15, y + 4)], fill=hexc("#f2c14e"))
+            d.line([(0, y + 5), (15, y + 5)], fill=hexc("#5e2616"))
+            d.point((5, y + 2), fill=hexc("#a39c8f"))
+            d.point((11, y + 1), fill=hexc("#a39c8f"))
+            # Relleno base
+            draw_brick_wall(d, T, y, rng)
+            # Variante 1: enredadera con flores
+            draw_brick_wall(d, 4 * T, y, rng)
+            for vx, vy in ((4, 0), (5, 1), (5, 2), (4, 3), (4, 4), (5, 5), (6, 6), (6, 7), (5, 8), (5, 9), (10, 0), (10, 1),
+                           (11, 2), (11, 3)):
+                d.point((4 * T + vx, y + vy), fill=hexc("#3f9b4f"))
+                d.point((4 * T + vx + 1, y + vy), fill=hexc("#2f7d3a"))
+            d.point((4 * T + 7, y + 6), fill=hexc("#ff7ab8"))
+            d.point((4 * T + 3, y + 3), fill=hexc("#f2c14e"))
+            d.point((4 * T + 12, y + 2), fill=hexc("#ff3b5c"))
+            # Variante 2: ventanita con luz cálida y reja
+            draw_brick_wall(d, 5 * T, y, rng)
+            d.rectangle([5 * T + 3, y + 3, 5 * T + 12, y + 12], fill=hexc("#3a2418"))
+            d.rectangle([5 * T + 4, y + 4, 5 * T + 11, y + 11], fill=hexc("#ffd27a"))
+            d.rectangle([5 * T + 4, y + 4, 5 * T + 11, y + 6], fill=hexc("#ffe9b0"))
+            for gx in (6, 9):
+                d.line([(5 * T + gx, y + 4), (5 * T + gx, y + 11)], fill=hexc("#2b2b2b"))
+            d.line([(5 * T + 4, y + 8), (5 * T + 11, y + 8)], fill=hexc("#2b2b2b"))
+            d.rectangle([5 * T + 2, y + 13, 5 * T + 13, y + 14], fill=hexc("#7a3b2a"))
+            # Variante 3: franja de mural con los colores de Colombia
+            draw_brick_wall(d, 6 * T, y, rng)
+            d.rectangle([6 * T, y + 4, 6 * T + 15, y + 7], fill=hexc("#ffcd00"))
+            d.rectangle([6 * T, y + 8, 6 * T + 15, y + 9], fill=hexc("#003893"))
+            d.rectangle([6 * T, y + 10, 6 * T + 15, y + 11], fill=hexc("#ce1126"))
+            d.point((6 * T + 3, y + 5), fill=hexc("#fff4b0"))
+            d.point((6 * T + 12, y + 6), fill=hexc("#e0a800"))
+            # Profundo
+            draw_brick_wall(d, 7 * T, y, rng, dark=0.62)
+            continue
+        fill_src = img.crop((T, y, 2 * T, y + T))
+        for col in (4, 5, 6):
+            img.paste(fill_src, (col * T, y))
+        # Variaciones genéricas sutiles
+        base_col = fill_src.getpixel((8, 8))
+        d.line([(4 * T + 2, y + 5), (4 * T + 6, y + 9)], fill=shade(base_col, 0.75))  # grieta
+        d.line([(4 * T + 6, y + 9), (4 * T + 9, y + 9)], fill=shade(base_col, 0.75))
+        d.ellipse([5 * T + 5, y + 6, 5 * T + 9, y + 9], fill=shade(base_col, 0.85))  # piedra
+        d.point((5 * T + 6, y + 6), fill=shade(base_col, 1.25))
+        d.rectangle([6 * T + 2, y + 11, 6 * T + 4, y + 12], fill=shade(base_col, 1.2))
+        d.rectangle([6 * T + 10, y + 3, 6 * T + 11, y + 4], fill=shade(base_col, 0.8))
+        deep = fill_src.copy()
+        px = deep.load()
+        for yy in range(T):
+            for xx in range(T):
+                r, g, b, a = px[xx, yy]
+                px[xx, yy] = (int(r * 0.65), int(g * 0.65), int(b * 0.7), a)
+        img.paste(deep, (7 * T, y))
+    return img
 
 
 # ---------------------------------------------------------------------------
