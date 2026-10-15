@@ -49,7 +49,7 @@ En pantallas táctiles aparecen botones en pantalla automáticamente.
 3. El CAI (barreras intermitentes, drones y 3 pistas)
 4. El parque (encuentro con Buitrago; la persecución vuelve después)
 5. El barrio (escaleras, tiendas, encuentro con Diaz)
-6. El viaducto (huecos largos, persecución exigente, rescate de Gordo)
+6. El viaducto de la Novena (huecos largos, persecución exigente, rescate de Gordo)
 7. Encuentro final (los cuatro juntos hasta el mirador y final de la historia)
 
 ## Pruebas

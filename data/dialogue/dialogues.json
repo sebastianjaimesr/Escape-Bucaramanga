@@ -34,11 +34,11 @@
 	"friend_rulos": [
 		{"speaker": "rulos", "text": "¡Llegaron! ¿Y esa sirena?"},
 		{"speaker": "gorra", "text": "Te explicamos corriendo. ¿Tienes la batería portátil?"},
-		{"speaker": "rulos", "text": "Siempre. Pero el resto del video lo tiene Gordo: se quedó en el viaducto tomando fotos de la ciudad."},
-		{"speaker": "protagonist", "text": "Entonces al viaducto. ¡Rápido!"}
+		{"speaker": "rulos", "text": "Siempre. Pero el resto del video lo tiene Gordo: se quedó en el viaducto de la Novena tomando fotos de la ciudad."},
+		{"speaker": "protagonist", "text": "Entonces al viaducto de la Novena. ¡Rápido!"}
 	],
 	"intro_level_06": [
-		{"speaker": "narrator", "text": "El viaducto. Las luces de la ciudad brillan bajo el puente y el viento sopla fuerte."},
+		{"speaker": "narrator", "text": "El viaducto de la Novena. Las luces de la ciudad brillan bajo el puente y el viento sopla fuerte."},
 		{"speaker": "rulos", "text": "¡Ojo con los huecos! Corre con SHIFT y salta con todo."},
 		{"speaker": "patrol", "text": "Aumentando velocidad de seguimiento."}
 	],
