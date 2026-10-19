@@ -8,6 +8,7 @@ signal finished
 const DIALOGUES_FILE := "res://data/dialogue/dialogues.json"
 const CHARS_PER_SECOND := 45.0
 
+# Todos los diálogos, cargados una sola vez y compartidos entre instancias.
 static var _db: Dictionary = {}
 
 var active := false
@@ -22,6 +23,7 @@ var _hint: Label
 var _was_paused := false
 
 
+## Líneas de un diálogo por su id (de data/dialogue/dialogues.json).
 static func get_dialogue(id: String) -> Array:
 	if _db.is_empty():
 		_db = GameState.load_json(DIALOGUES_FILE)
@@ -29,6 +31,8 @@ static func get_dialogue(id: String) -> Array:
 	return lines if lines is Array else []
 
 
+## Construye la caja por código: panel, retrato, nombre, texto y ayuda.
+## process_mode ALWAYS permite que funcione con el juego en pausa.
 func _ready() -> void:
 	layer = 15
 	add_to_group("dialogue")
@@ -90,6 +94,7 @@ func play(dialogue_id: String) -> void:
 	await finished
 
 
+## Muestra la línea actual: nombre y color del personaje, retrato y texto (empieza oculto).
 func _show_line() -> void:
 	var line: Dictionary = _lines[_index]
 	var speaker: String = line.get("speaker", "narrator")
@@ -106,6 +111,7 @@ func _show_line() -> void:
 	AudioManager.play_sfx("blip")
 
 
+## Retrato del personaje; si tiene región, recorta solo esa parte de la imagen.
 func _portrait_for(info: Dictionary) -> Texture2D:
 	var path: String = info.get("portrait", "")
 	if path == "" or not ResourceLoader.exists(path):
@@ -116,6 +122,7 @@ func _portrait_for(info: Dictionary) -> Texture2D:
 	return load(path)
 
 
+## Efecto máquina de escribir: muestra más letras cada cuadro.
 func _process(delta: float) -> void:
 	if not active:
 		return
@@ -125,6 +132,8 @@ func _process(delta: float) -> void:
 		_text.visible_characters = int(_visible_chars)
 
 
+## Con saltar, interactuar, clic o toque: si el texto no terminó de aparecer lo completa;
+## si ya terminó, pasa a la siguiente línea o cierra el diálogo.
 func _input(event: InputEvent) -> void:
 	if not active:
 		return
@@ -149,6 +158,7 @@ func _input(event: InputEvent) -> void:
 		_show_line()
 
 
+## Cierra la caja, devuelve la pausa a como estaba y emite finished.
 func _close() -> void:
 	active = false
 	_panel.visible = false

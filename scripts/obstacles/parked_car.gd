@@ -1,11 +1,12 @@
 extends StaticBody2D
 ## Carro estacionado: obstáculo sólido sobre el que se puede saltar.
 
-const VARIANTS := ["car_taxi", "car_red", "car_gray", "car_blue", "car_taxi"]
+const VARIANTS := ["car_taxi", "car_red", "car_gray", "car_blue", "car_taxi"]  # colores posibles del carro
 
 @export var variant := 0
 
 
+## Crea el sprite del carro y dos colisiones: la carrocería y el techo.
 func _ready() -> void:
 	collision_layer = 1
 	collision_mask = 0

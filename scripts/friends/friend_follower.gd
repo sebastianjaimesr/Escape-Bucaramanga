@@ -2,7 +2,7 @@ class_name FriendFollower
 extends Node2D
 ## Amigo que ya se unió: sigue el rastro del jugador con un retraso (solo visual).
 
-const FRAMES_PER_SLOT := 14
+const FRAMES_PER_SLOT := 14  # cada amigo va 14 muestras más atrás en el rastro
 
 var friend_id := "gorra"
 var slot := 0
@@ -21,6 +21,7 @@ func _ready() -> void:
 	_last = position
 
 
+## Se ubica en una posición antigua del jugador y elige la animación según cómo se movió.
 func _physics_process(_delta: float) -> void:
 	if trail == null or trail.is_empty():
 		return
@@ -41,5 +42,6 @@ func _physics_process(_delta: float) -> void:
 		_sprite.play(anim)
 
 
+## Animación de celebración al terminar el nivel.
 func cheer() -> void:
 	_sprite.play(&"interact")

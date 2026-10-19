@@ -22,6 +22,8 @@ var _heart_empty: AtlasTexture
 var _fill_styles: Dictionary = {}
 
 
+## Construye el HUD por código (esquinas: salud y contadores, título y objetivo, barra de la
+## patrulla, mensajes) y se conecta a las señales de GameState para actualizarse solo.
 func _ready() -> void:
 	layer = 10
 	add_to_group("hud")
@@ -160,6 +162,7 @@ func _ready() -> void:
 	refresh_all()
 
 
+## Crea un texto del tamaño indicado que no bloquea el mouse.
 func _label(text: String, size: int) -> Label:
 	var l := Label.new()
 	l.text = text
@@ -168,6 +171,7 @@ func _label(text: String, size: int) -> Label:
 	return l
 
 
+## Cambia el color de la barra de la patrulla (reutiliza estilos ya creados).
 func _set_bar_color(c: Color) -> void:
 	if not _fill_styles.has(c):
 		var fill := StyleBoxFlat.new()
@@ -177,6 +181,7 @@ func _set_bar_color(c: Color) -> void:
 	_chase_bar.add_theme_stylebox_override("fill", _fill_styles[c])
 
 
+## Actualiza todos los indicadores con los valores actuales.
 func refresh_all() -> void:
 	_on_health_changed(GameState.health, GameState.MAX_HEALTH)
 	_on_lives_changed(GameState.lives)
@@ -185,22 +190,28 @@ func refresh_all() -> void:
 	_on_friends_changed(GameState.friends)
 
 
+## Muestra el título del nivel.
 func set_level_title(text: String) -> void:
 	_level_title.text = text
 
 
+## Muestra el objetivo actual.
 func set_objective(text: String) -> void:
 	_objective.text = text
 
 
+## Muestra u oculta el contador de pistas (solo en niveles que las tienen).
 func show_pistas(value: bool) -> void:
 	_pistas_box.visible = value
 
 
+## Muestra u oculta la barra de la patrulla.
 func set_chase_visible(value: bool) -> void:
 	_chase_box.visible = value
 
 
+## Actualiza la barra de distancia: roja y parpadeando si la patrulla está muy cerca,
+## amarilla a media distancia y verde lejos.
 func set_chase_distance(distance: float, max_distance: float) -> void:
 	var ratio := clampf(distance / max_distance, 0.0, 1.0)
 	_chase_bar.value = ratio
@@ -212,15 +223,18 @@ func set_chase_distance(distance: float, max_distance: float) -> void:
 		_set_bar_color(Color(0.3, 1.0, 0.6))
 
 
+## Muestra un consejo durante 5 segundos.
 func show_hint(text: String) -> void:
 	_hint.text = text
 	_hint_time = 5.0
 
 
+## Muestra una indicación fija (por ejemplo, "Presiona E para hablar"); vacío la oculta.
 func show_prompt(text: String) -> void:
 	_prompt.text = text
 
 
+## Muestra un aviso temporal en el centro.
 func show_toast(text: String, duration: float = 2.5, color: Color = Color(1, 0.95, 0.85)) -> void:
 	_toast.text = text
 	_toast.add_theme_color_override("font_color", color)
@@ -228,6 +242,7 @@ func show_toast(text: String, duration: float = 2.5, color: Color = Color(1, 0.9
 	_toast.modulate.a = 1.0
 
 
+## Desvanece el consejo y el aviso cuando se acaba su tiempo.
 func _process(delta: float) -> void:
 	if _hint_time > 0.0:
 		_hint_time -= delta
@@ -237,24 +252,29 @@ func _process(delta: float) -> void:
 		_toast.modulate.a = clampf(_toast_time * 2.0, 0.0, 1.0)
 
 
+## Dibuja corazones llenos o vacíos según la salud.
 func _on_health_changed(health: int, max_health: int) -> void:
 	for i in _hearts.size():
 		_hearts[i].texture = _heart_full if i < health else _heart_empty
 		_hearts[i].visible = i < max_health
 
 
+## Actualiza el contador de vidas.
 func _on_lives_changed(lives: int) -> void:
 	_lives_label.text = "x%d" % lives
 
 
+## Actualiza el contador de granizados.
 func _on_granizados_changed(count: int) -> void:
 	_boca_label.text = str(count)
 
 
+## Actualiza el contador de pistas.
 func _on_pistas_changed(count: int) -> void:
 	_pistas_label.text = str(count)
 
 
+## Muestra los nombres de los amigos que ya se unieron.
 func _on_friends_changed(friends: Array) -> void:
 	if friends.is_empty():
 		_friends_label.text = ""

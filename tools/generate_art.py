@@ -16,22 +16,26 @@ OUT = os.path.join(ROOT, "assets")
 OUTLINE = (20, 12, 28, 255)
 
 
+# Ruta de salida dentro de assets/, creando las carpetas si hace falta.
 def path(*parts):
     p = os.path.join(OUT, *parts)
     os.makedirs(os.path.dirname(p), exist_ok=True)
     return p
 
 
+# Convierte un color "#rrggbb" en una tupla RGBA.
 def hexc(h, a=255):
     h = h.lstrip("#")
     return (int(h[0:2], 16), int(h[2:4], 16), int(h[4:6], 16), a)
 
 
+# Oscurece o aclara un color multiplicándolo por f.
 def shade(c, f):
     return (max(0, min(255, int(c[0] * f))), max(0, min(255, int(c[1] * f))),
             max(0, min(255, int(c[2] * f))), c[3])
 
 
+# Agrega un contorno de un píxel alrededor de la figura (estilo pixel art).
 def add_outline(img, color=OUTLINE):
     w, h = img.size
     src = img.load()
@@ -49,6 +53,7 @@ def add_outline(img, color=OUTLINE):
     return out
 
 
+# Dibuja una línea gruesa píxel a píxel.
 def thick_line(d, p0, p1, color, width):
     x0, y0 = p0
     x1, y1 = p1
@@ -110,6 +115,7 @@ ANIMS = ["idle", "walk", "run", "jump", "fall", "hurt", "interact"]
 ANIM_FRAMES = {"idle": 4, "walk": 6, "run": 6, "jump": 2, "fall": 2, "hurt": 2, "interact": 4}
 
 
+# Postura del personaje (piernas, brazos, inclinación) para el cuadro i de cada animación.
 def pose_for(anim, i):
     p = dict(bob=0, lean=0, front=(2, 0), back=(-2, 0), arm_f=8, arm_b=-8, tint=None, open_mouth=False)
     if anim == "idle":
@@ -156,6 +162,7 @@ def pose_for(anim, i):
     return p
 
 
+# Dibuja un personaje de 32x32 con la postura indicada.
 def draw_character(spec, pose):
     img = Image.new("RGBA", (FRAME, FRAME), (0, 0, 0, 0))
     d = ImageDraw.Draw(img)
@@ -167,6 +174,7 @@ def draw_character(spec, pose):
     pants = spec["pants"]
     pants_back = shade(pants, 0.72)
 
+    # Dibuja una pierna (muslo, rodilla y pie).
     def leg(foot_off, color, front):
         fx, lift = foot_off
         foot = (16 + fx, 29 - lift)
@@ -187,6 +195,7 @@ def draw_character(spec, pose):
         d.point((foot[0] - 1, foot[1] + 1), fill=spec["shoe_detail"])
         d.point((foot[0], foot[1] + 1), fill=spec["shoe_detail"])
 
+    # Dibuja un brazo con el ángulo indicado.
     def arm(angle_deg, front):
         a = math.radians(angle_deg)
         length = 7
@@ -291,6 +300,7 @@ def draw_character(spec, pose):
     return img
 
 
+# Genera la hoja de sprites de cada personaje: una fila por animación.
 def make_character_sheets():
     cols = max(ANIM_FRAMES.values())
     for name, spec in CHARACTERS.items():
@@ -354,6 +364,7 @@ def make_patrol_drone():
     sheet.save(path("sprites", "patrol_drone.png"))
 
 
+# Genera el dron vigía pequeño (2 cuadros).
 def make_small_drone():
     w = 16
     sheet = Image.new("RGBA", (w * 2, w), (0, 0, 0, 0))
@@ -423,6 +434,7 @@ def _shop_shelves(d, x0, y0, x1, y1, rng):
             x += 3
 
 
+# Genera las fachadas de las tiendas (OXXO, D1, centro comercial y granizado).
 def make_shops():
     rng = random.Random(77)
     # OXXO: franja roja, letrero amarillo con letras rojas
@@ -493,6 +505,7 @@ def make_shops():
     add_outline(img).save(path("sprites", "shop_granizado.png"))
 
 
+# Genera los coleccionables (granizado, pista, corazón, vida).
 def make_items():
     # Granizado colombiano: vaso con hielo raspado, siropes y leche condensada
     sheet = Image.new("RGBA", (16 * 4, 16), (0, 0, 0, 0))
@@ -531,6 +544,7 @@ def make_items():
     add_outline(img).save(path("sprites", "heart_pickup.png"))
 
 
+# Dibuja un corazón con una plantilla de píxeles.
 def heart(d, x, y, color):
     pts = ["0110110", "1111111", "1111111", "0111110", "0011100", "0001000"]
     for j, row in enumerate(pts):
@@ -539,6 +553,7 @@ def heart(d, x, y, color):
                 d.rectangle([x + i * 2 - 1, y + j * 2 - 1, x + i * 2, y + j * 2], fill=color)
 
 
+# Genera los obstáculos (vidrios, conos, barrera, carros, moto…).
 def make_obstacles():
     # Vidrios rotos (peligro)
     img = Image.new("RGBA", (16, 16), (0, 0, 0, 0))
@@ -649,6 +664,7 @@ def make_obstacles():
     img.save(path("sprites", "raindrop.png"))
 
 
+# Textura de luz circular que se desvanece hacia los bordes.
 def radial_light(size, power=1.6):
     img = Image.new("RGBA", (size, size), (0, 0, 0, 0))
     px = img.load()
@@ -661,6 +677,7 @@ def radial_light(size, power=1.6):
     return img
 
 
+# Genera las texturas de luces (círculo y cono de linterna).
 def make_lights():
     radial_light(128).save(path("sprites", "light.png"))
     # Cono de linterna hacia abajo
@@ -681,6 +698,7 @@ def make_lights():
 # Accesorios urbanos
 # ---------------------------------------------------------------------------
 
+# Genera las decoraciones (farola, letreros, banca, árbol, CAI, patrulla…).
 def make_props():
     # Farola
     img = Image.new("RGBA", (24, 72), (0, 0, 0, 0))
@@ -814,6 +832,7 @@ def make_props():
 THEMES = ["calles", "comercial", "cai", "parque", "barrio", "viaducto", "final"]
 
 
+# Rellena una baldosa con un color base y puntos de ruido para dar textura.
 def noise_fill(d, x0, y0, base, rng, amount=10, n=10):
     d.rectangle([x0, y0, x0 + 15, y0 + 15], fill=base)
     for _ in range(n):
@@ -823,6 +842,7 @@ def noise_fill(d, x0, y0, base, rng, amount=10, n=10):
         d.point((x, y), fill=shade(base, f))
 
 
+# Genera el tileset: una fila de baldosas por tema.
 def make_tileset():
     T = 16
     cols = 4  # 0 superficie, 1 relleno, 2 plataforma de un sentido, 3 caja
@@ -926,6 +946,7 @@ def draw_brick_wall(d, x0, y0, rng, palette=BRICK_PALETTE, dark=1.0):
                 d.point((rng.randint(xa, xb), by + 2), fill=shade(col, 0.8))
 
 
+# Agrega variantes de relleno (grietas, ventanas, enredaderas, murales) al tileset.
 def add_fill_variants(base):
     T = 16
     img = Image.new("RGBA", (T * 8, base.height), (0, 0, 0, 0))
@@ -1000,6 +1021,7 @@ def add_fill_variants(base):
 BW, BH = 480, 360
 
 
+# Genera el cielo nocturno con degradado y estrellas.
 def make_sky():
     img = Image.new("RGBA", (BW, BH), (0, 0, 0, 255))
     px = img.load()
@@ -1028,6 +1050,7 @@ def make_sky():
     img.save(path("backgrounds", "sky.png"))
 
 
+# Perfil de montañas sumando ondas seno.
 def ridge(rng, base, amp, freq_list, width=BW):
     phases = [rng.random() * math.tau for _ in freq_list]
     ys = []
@@ -1040,6 +1063,7 @@ def ridge(rng, base, amp, freq_list, width=BW):
     return ys
 
 
+# Genera la capa de montañas.
 def make_mountains():
     img = Image.new("RGBA", (BW, BH), (0, 0, 0, 0))
     px = img.load()
@@ -1061,6 +1085,7 @@ def make_mountains():
     img.save(path("backgrounds", "mountains.png"))
 
 
+# Dibuja una fila de edificios con ventanas encendidas (y neón si se pide).
 def building_row(img, rng, base_y, min_h, max_h, colors, window_chance, win_colors, seed_step=0,
                  neon=False, antenna=True):
     d = ImageDraw.Draw(img)
@@ -1093,6 +1118,7 @@ def building_row(img, rng, base_y, min_h, max_h, colors, window_chance, win_colo
     return tops
 
 
+# Genera la ciudad lejana.
 def make_city_far():
     img = Image.new("RGBA", (BW, BH), (0, 0, 0, 0))
     rng = random.Random(21)
@@ -1102,6 +1128,7 @@ def make_city_far():
     img.save(path("backgrounds", "city_far.png"))
 
 
+# Genera la capa cercana de cada tema de nivel.
 def make_near_layers():
     configs = {
         "calles": dict(colors=["#2d2440", "#33284a", "#2a2238"], neon=False, minh=40, maxh=100, chance=0.3),
@@ -1166,6 +1193,7 @@ def make_near_layers():
 # Interfaz
 # ---------------------------------------------------------------------------
 
+# Genera los gráficos de la interfaz (corazones, íconos, botones táctiles).
 def make_ui():
     img = Image.new("RGBA", (32, 16), (0, 0, 0, 0))
     d = ImageDraw.Draw(img)
@@ -1227,6 +1255,7 @@ def make_ui():
     icon.save(os.path.join(ROOT, "icon.png"))
 
 
+# Genera todos los gráficos del juego.
 def main():
     make_character_sheets()
     make_patrol_drone()

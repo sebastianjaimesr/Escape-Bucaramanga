@@ -2,6 +2,7 @@ extends Node
 ## Estado global de la partida: vidas, salud, progreso, amigos y controles.
 ## Es un autoload porque varias escenas (niveles, menús, HUD) lo comparten.
 
+# Señales que escuchan el HUD y otros sistemas cuando cambian los valores.
 signal lives_changed(lives: int)
 signal health_changed(health: int, max_health: int)
 signal granizados_changed(count: int)
@@ -13,6 +14,7 @@ const MAX_HEALTH := 3
 const LEVELS_INDEX := "res://data/levels/levels.json"
 const CHARACTERS_FILE := "res://data/dialogue/characters.json"
 
+# Datos cargados de JSON y estado de la partida actual.
 var levels: Array = []
 var characters: Dictionary = {}
 var current_level := 0
@@ -30,6 +32,7 @@ var last_result: Dictionary = {}
 var settings := {"music": 0.7, "sfx": 0.85, "rain": true, "fullscreen": false}
 
 
+## Al iniciar: sigue funcionando en pausa, configura los controles y carga los datos.
 func _ready() -> void:
 	process_mode = Node.PROCESS_MODE_ALWAYS
 	_setup_input()
@@ -40,6 +43,7 @@ func _ready() -> void:
 # ---------------------------------------------------------------------------
 # Datos
 # ---------------------------------------------------------------------------
+## Lee un archivo JSON y lo devuelve como diccionario; {} si falta o es inválido.
 static func load_json(path: String) -> Dictionary:
 	if not FileAccess.file_exists(path):
 		push_error("No existe el archivo de datos: %s" % path)
@@ -52,10 +56,12 @@ static func load_json(path: String) -> Dictionary:
 	return {}
 
 
+## Cantidad de niveles.
 func level_count() -> int:
 	return levels.size()
 
 
+## Posición de un nivel por su id; -1 si no existe.
 func level_index_of(level_id: String) -> int:
 	for i in levels.size():
 		if levels[i]["id"] == level_id:
@@ -63,18 +69,22 @@ func level_index_of(level_id: String) -> int:
 	return -1
 
 
+## Carga el JSON de un nivel (mapa, entidades, misión, persecución…).
 func load_level_data(level_id: String) -> Dictionary:
 	return load_json("res://data/levels/%s.json" % level_id)
 
 
+## Nombre visible de un personaje.
 func character_name(id: String) -> String:
 	return characters.get(id, {}).get("name", id)
 
 
+## Hoja de sprites del personaje.
 func character_sheet(id: String) -> String:
 	return characters.get(id, {}).get("sheet", "res://assets/characters/protagonist.png")
 
 
+## Retrato del personaje para los diálogos.
 func character_portrait(id: String) -> String:
 	return characters.get(id, {}).get("portrait", "")
 
@@ -82,6 +92,7 @@ func character_portrait(id: String) -> String:
 # ---------------------------------------------------------------------------
 # Flujo de partida
 # ---------------------------------------------------------------------------
+## Partida nueva: reinicia vidas, salud e introducciones vistas y empieza en el nivel 1.
 func new_game() -> void:
 	lives = MAX_LIVES
 	health = MAX_HEALTH
@@ -89,10 +100,12 @@ func new_game() -> void:
 	start_level(0)
 
 
+## Continúa en el último nivel desbloqueado.
 func continue_game() -> void:
 	start_level(clampi(current_level, 0, unlocked_level))
 
 
+## Prepara el estado del nivel (salud, contadores, amigos ya rescatados), guarda y cambia de escena.
 func start_level(index: int) -> void:
 	index = clampi(index, 0, levels.size() - 1)
 	current_level = index
@@ -108,6 +121,7 @@ func start_level(index: int) -> void:
 	SceneTransition.change_scene(info["scene"], info["title"])
 
 
+## Reinicia el nivel actual.
 func restart_level() -> void:
 	start_level(current_level)
 
@@ -123,6 +137,7 @@ func friends_before(index: int) -> Array:
 	return result
 
 
+## Guarda el resultado del nivel, el mejor récord de granizados y desbloquea el siguiente.
 func complete_level(stats: Dictionary) -> void:
 	var level_id: String = levels[current_level]["id"]
 	best_granizados[level_id] = maxi(int(best_granizados.get(level_id, 0)), level_granizados)
@@ -134,6 +149,7 @@ func complete_level(stats: Dictionary) -> void:
 	SaveSystem.save_game()
 
 
+## true si es el último nivel.
 func is_last_level() -> bool:
 	return current_level >= levels.size() - 1
 
@@ -141,17 +157,20 @@ func is_last_level() -> bool:
 # ---------------------------------------------------------------------------
 # Vidas, salud y coleccionables
 # ---------------------------------------------------------------------------
+## Resta salud y devuelve la que queda.
 func damage(amount: int) -> int:
 	health = maxi(0, health - amount)
 	health_changed.emit(health, MAX_HEALTH)
 	return health
 
 
+## Suma salud sin pasar del máximo.
 func heal(amount: int) -> void:
 	health = mini(MAX_HEALTH, health + amount)
 	health_changed.emit(health, MAX_HEALTH)
 
 
+## Resta una vida, recupera la salud y devuelve las vidas restantes.
 func lose_life() -> int:
 	lives = maxi(0, lives - 1)
 	health = MAX_HEALTH
@@ -160,6 +179,7 @@ func lose_life() -> int:
 	return lives
 
 
+## Suma un granizado (coleccionable).
 func add_granizado(amount: int = 1) -> void:
 	level_granizados += amount
 	granizados_changed.emit(level_granizados)
@@ -169,22 +189,26 @@ func add_granizado(amount: int = 1) -> void:
 		lives_changed.emit(lives)
 
 
+## Suma una vida sin pasar del máximo.
 func add_life() -> void:
 	lives = mini(MAX_LIVES, lives + 1)
 	lives_changed.emit(lives)
 
 
+## Suma una pista recogida.
 func add_pista() -> void:
 	level_pistas += 1
 	pistas_changed.emit(level_pistas)
 
 
+## Agrega un amigo rescatado al grupo.
 func add_friend(id: String) -> void:
 	if not friends.has(id):
 		friends.append(id)
 		friends_changed.emit(friends)
 
 
+## Guarda la posición del último punto de control.
 func set_checkpoint(pos: Vector2) -> void:
 	checkpoint_position = pos
 	has_checkpoint = true
@@ -193,6 +217,8 @@ func set_checkpoint(pos: Vector2) -> void:
 # ---------------------------------------------------------------------------
 # Controles (teclado, mando y táctil mediante acciones)
 # ---------------------------------------------------------------------------
+## Registra las acciones del juego (mover, saltar, correr, hablar, pausa) para teclado,
+## mando y palanca analógica. Los botones táctiles usan estas mismas acciones.
 func _setup_input() -> void:
 	var keys := {
 		"move_left": [KEY_A, KEY_LEFT],

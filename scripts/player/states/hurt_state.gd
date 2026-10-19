@@ -1,4 +1,5 @@
 extends PlayerState
+## Estado herido: empuje hacia atrás por un momento, sin control.
 
 const DURATION := 0.35
 

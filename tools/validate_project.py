@@ -16,10 +16,12 @@ errors = []
 warnings = []
 
 
+# Convierte una ruta res:// de Godot en una ruta del sistema.
 def res_to_path(res):
     return os.path.join(ROOT, res[len("res://"):].replace("/", os.sep))
 
 
+# Comprueba que exista cada archivo res:// mencionado en scripts, escenas y datos.
 def check_res_paths():
     pattern = re.compile(r'res://[A-Za-z0-9_./%-]+')
     for folder in ("scripts", "scenes", "data", "tests"):
@@ -41,6 +43,7 @@ def check_res_paths():
                 errors.append("project.godot: ruta inexistente %s" % m)
 
 
+# Lee un JSON del proyecto; registra un error si no existe o es inválido.
 def load_json(rel):
     try:
         with open(os.path.join(ROOT, rel), encoding="utf-8") as f:
@@ -60,6 +63,7 @@ def reachable(rows):
     """Búsqueda aproximada de alcanzabilidad desde P hasta X sobre superficies."""
     h, w = len(rows), len(rows[0])
 
+    # Indica si el jugador puede pararse en (x, y): espacio libre con suelo debajo.
     def standable(x, y):
         if not (0 <= x < w and 0 <= y < h - 1):
             return False
@@ -70,6 +74,7 @@ def reachable(rows):
         # Las plataformas móviles cuentan como suelo en un área cercana.
         return below in STAND or below in "MV" or here in "MV"
 
+    # Primera fila donde el jugador puede pararse en la columna x.
     def surface_y(x, y_from):
         for y in range(max(0, y_from), h - 1):
             if standable(x, y):
@@ -115,6 +120,7 @@ def reachable(rows):
     return False, far
 
 
+# Revisa cada nivel: mapa coherente, diálogos y personajes existentes, y que la meta sea alcanzable.
 def check_levels():
     index = load_json("data/levels/levels.json")
     dialogues = load_json("data/dialogue/dialogues.json")
@@ -166,6 +172,7 @@ def check_levels():
             errors.append("%s: fondo de temática inexistente" % lid)
 
 
+# Revisa que cada escena apunte a scripts que existen.
 def check_scenes():
     for dirpath, _, files in os.walk(os.path.join(ROOT, "scenes")):
         for name in files:
@@ -189,6 +196,7 @@ def check_gdscript_basics():
                         warnings.append("%s:%d indentación con espacios" % (name, i))
 
 
+# Ejecuta todas las validaciones y muestra los errores y advertencias.
 def main():
     check_res_paths()
     check_levels()

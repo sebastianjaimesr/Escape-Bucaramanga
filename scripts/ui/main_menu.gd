@@ -6,6 +6,7 @@ var _menu: VBoxContainer
 var _sub: Control
 
 
+## Construye el menú: fondo animado, título y botones (Continuar solo si hay partida guardada).
 func _ready() -> void:
 	get_tree().paused = false
 	var backdrop := MenuBackdrop.new()
@@ -67,20 +68,24 @@ func _ready() -> void:
 	(_menu.get_child(0) as Button).call_deferred("grab_focus")
 
 
+## Continúa la partida guardada.
 func _continue() -> void:
 	GameState.continue_game()
 
 
+## Empieza una partida nueva.
 func _new_game() -> void:
 	GameState.new_game()
 
 
+## Oculta el menú y muestra un panel secundario (niveles o créditos).
 func _show_sub(panel: Control) -> void:
 	_menu.visible = false
 	_sub = panel
 	_ui.add_child(panel)
 
 
+## Cierra el panel secundario y vuelve al menú.
 func _close_sub() -> void:
 	if _sub != null and is_instance_valid(_sub):
 		_sub.queue_free()
@@ -89,6 +94,7 @@ func _close_sub() -> void:
 	(_menu.get_child(0) as Button).grab_focus()
 
 
+## Abre el panel de opciones.
 func _options() -> void:
 	var panel := OptionsPanel.new()
 	panel.closed.connect(func() -> void:
@@ -100,6 +106,7 @@ func _options() -> void:
 	_sub = panel
 
 
+## Panel para elegir nivel: solo se pueden jugar los ya desbloqueados.
 func _level_select() -> void:
 	var panel := PanelContainer.new()
 	panel.set_anchors_preset(Control.PRESET_CENTER)
@@ -132,6 +139,7 @@ func _level_select() -> void:
 		first.grab_focus()
 
 
+## Panel de créditos.
 func _credits() -> void:
 	var panel := PanelContainer.new()
 	panel.set_anchors_preset(Control.PRESET_CENTER)
@@ -154,6 +162,7 @@ func _credits() -> void:
 	back.grab_focus()
 
 
+## Con "cancelar" (Escape) se cierra el panel secundario.
 func _unhandled_input(event: InputEvent) -> void:
 	if _sub != null and event.is_action_pressed("ui_cancel") and not _sub is OptionsPanel:
 		get_viewport().set_input_as_handled()

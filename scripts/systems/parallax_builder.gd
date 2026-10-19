@@ -7,6 +7,8 @@ const LAYER_WIDTH := 480.0
 const TOP := -40.0
 
 
+## Crea cuatro capas de fondo; las lejanas se mueven más despacio que las cercanas
+## (scroll_scale), lo que da sensación de profundidad.
 static func build(parent: Node, theme: String, autoscroll_speed: float = 0.0) -> Node2D:
 	var root := Node2D.new()
 	root.name = "Background"

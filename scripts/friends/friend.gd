@@ -13,6 +13,7 @@ var _bubble: Label
 var _time := 0.0
 
 
+## Crea el sprite del amigo, la burbuja "!", una luz y la zona para detectar al jugador.
 func _ready() -> void:
 	collision_layer = 0
 	collision_mask = 2
@@ -49,23 +50,27 @@ func _ready() -> void:
 	body_exited.connect(_on_body_exited)
 
 
+## Hace flotar la burbuja "!".
 func _process(delta: float) -> void:
 	_time += delta
 	_bubble.position.y = -50 + sin(_time * 5.0) * 2.0
 
 
+## Cuando el jugador se acerca, puede hablar con él (muestra "Presiona E").
 func _on_body_entered(body: Node2D) -> void:
 	if body is Player and not talked:
 		(body as Player).set_interact_target(self)
 		get_tree().call_group("hud", "show_prompt", "Presiona E para hablar")
 
 
+## Cuando el jugador se aleja, ya no puede hablar.
 func _on_body_exited(body: Node2D) -> void:
 	if body is Player:
 		(body as Player).clear_interact_target(self)
 		get_tree().call_group("hud", "show_prompt", "")
 
 
+## El jugador habla con el amigo: se pide al nivel que muestre el diálogo (señal talk_requested).
 func interact(player: Player) -> void:
 	if talked:
 		return
@@ -77,6 +82,7 @@ func interact(player: Player) -> void:
 	talk_requested.emit(self)
 
 
+## Celebración al unirse al grupo.
 func celebrate() -> void:
 	AudioManager.play_sfx("friend")
 	Effects.burst(get_parent(), global_position + Vector2(0, -20), Color(1, 0.85, 0.3), 20, 110.0)

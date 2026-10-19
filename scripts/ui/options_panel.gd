@@ -10,6 +10,7 @@ var _rain: CheckButton
 var _fullscreen: CheckButton
 
 
+## Construye el panel: volumen de música y efectos, lluvia y pantalla completa.
 func _ready() -> void:
 	theme = UITheme.get_theme()
 	set_anchors_preset(Control.PRESET_CENTER)
@@ -40,6 +41,7 @@ func _ready() -> void:
 	back.call_deferred("grab_focus")
 
 
+## Crea un control deslizante de 0 a 1 con su etiqueta.
 func _slider(parent: Container, label: String, value: float) -> HSlider:
 	var l := Label.new()
 	l.text = label
@@ -54,17 +56,20 @@ func _slider(parent: Container, label: String, value: float) -> HSlider:
 	return s
 
 
+## Guarda una opción, la aplica y guarda la partida.
 func _set_setting(key: String, value: Variant) -> void:
 	GameState.settings[key] = value
 	SaveSystem.apply_settings()
 	SaveSystem.save_game()
 
 
+## Cierra el panel y avisa con la señal closed.
 func _close() -> void:
 	closed.emit()
 	queue_free()
 
 
+## Escape cierra el panel.
 func _unhandled_input(event: InputEvent) -> void:
 	if event.is_action_pressed("ui_cancel"):
 		get_viewport().set_input_as_handled()

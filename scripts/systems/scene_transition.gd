@@ -9,6 +9,7 @@ var _title: Label
 var _subtitle: Label
 
 
+## Crea el telón negro y los textos del título; queda por encima de todo (layer 100).
 func _ready() -> void:
 	layer = 100
 	process_mode = Node.PROCESS_MODE_ALWAYS
@@ -26,6 +27,7 @@ func _ready() -> void:
 	_fade.add_child(_subtitle)
 
 
+## Crea un texto centrado con borde negro.
 func _make_label(size: int, color: Color) -> Label:
 	var l := Label.new()
 	l.set_anchors_preset(Control.PRESET_FULL_RECT)
@@ -38,6 +40,8 @@ func _make_label(size: int, color: Color) -> Label:
 	return l
 
 
+## Cambia de escena con fundido a negro, muestra el título (si hay) y vuelve a aparecer.
+## Al terminar emite transition_finished.
 func change_scene(path: String, title: String = "", subtitle: String = "") -> void:
 	if busy:
 		return

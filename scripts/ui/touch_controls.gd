@@ -14,6 +14,7 @@ const BUTTONS := [
 var _buttons: Dictionary = {}
 
 
+## Crea los botones táctiles; cada uno dispara una acción del juego (mover, saltar…).
 func _ready() -> void:
 	layer = 12
 	for def: Array in BUTTONS:
@@ -33,6 +34,7 @@ func _ready() -> void:
 	_layout()
 
 
+## Ubica los botones según el tamaño de la pantalla: dirección a la izquierda, acciones a la derecha.
 func _layout() -> void:
 	var size := get_viewport().get_visible_rect().size
 	var s := 1.4

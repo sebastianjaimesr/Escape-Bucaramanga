@@ -13,6 +13,7 @@ var _sprite: AnimatedSprite2D
 var _sensor: Area2D
 
 
+## Crea el sprite, la colisión sólida y un sensor un poco más ancho que detecta al jugador.
 func _ready() -> void:
 	collision_layer = 1
 	collision_mask = 0
@@ -41,6 +42,8 @@ func _ready() -> void:
 	_time = fmod(phase, closed_time + open_time)
 
 
+## Avanza el ciclo cerrado/abierto. Si el jugador está dentro del sensor, espera
+## a que salga antes de cerrarse; la colisión se activa o desactiva según el estado.
 func _physics_process(delta: float) -> void:
 	_time += delta
 	var cycle := closed_time + open_time

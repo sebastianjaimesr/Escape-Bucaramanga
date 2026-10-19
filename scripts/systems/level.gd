@@ -3,6 +3,7 @@ extends Node2D
 ## Nivel jugable. Construye el mapa desde data/levels/<level_id>.json y coordina
 ## jugador, persecución, misiones, amigos, diálogos, HUD y reapariciones.
 
+# Escenas que el nivel crea por código.
 const PLAYER_SCENE := "res://scenes/player/player.tscn"
 const CHASE_SCENE := "res://scenes/enemies/chase_patrol.tscn"
 const HUD_SCENE := "res://scenes/ui/hud.tscn"
@@ -10,6 +11,7 @@ const DIALOGUE_SCENE := "res://scenes/ui/dialogue_box.tscn"
 const PAUSE_SCENE := "res://scenes/ui/pause_menu.tscn"
 const TOUCH_SCENE := "res://scenes/ui/touch_controls.tscn"
 
+# Tono de la noche según el tema visual del nivel.
 const NIGHT_COLORS := {
 	"calles": Color(0.6, 0.6, 0.85),
 	"comercial": Color(0.68, 0.62, 0.86),
@@ -43,6 +45,8 @@ var elapsed := 0.0
 var _chase_timer := -1.0
 
 
+## Construye todo el nivel en orden: fondo, mapa de baldosas, objetos, jugador, amigos que lo
+## siguen, cámara, persecución, HUD, misiones, diálogos, pausa y controles táctiles.
 func _ready() -> void:
 	data = GameState.load_level_data(level_id)
 	if data.is_empty():
@@ -53,6 +57,7 @@ func _ready() -> void:
 		# Escena abierta directamente (editor o pruebas): sincroniza el estado.
 		GameState.current_level = level_index
 		GameState.friends = GameState.friends_before(level_index)
+	# LevelBuilder convierte el JSON del nivel en baldosas y entidades.
 	builder = LevelBuilder.new(data)
 	var theme: String = data.get("theme", "calles")
 	ParallaxBuilder.build(self, theme)
@@ -79,6 +84,7 @@ func _ready() -> void:
 	add_child(player)
 	player.died.connect(_on_player_died)
 
+	# Rastro del jugador: los amigos que lo siguen repiten su recorrido.
 	trail = TrailRecorder.new()
 	trail.name = "Trail"
 	trail.target = player
@@ -95,6 +101,7 @@ func _ready() -> void:
 	camera.make_current()
 	camera.snap_to_target()
 
+	# Dron que persigue al jugador.
 	chase = load(CHASE_SCENE).instantiate()
 	chase.player = player
 	add_child(chase)
@@ -102,6 +109,7 @@ func _ready() -> void:
 
 	hud = load(HUD_SCENE).instantiate()
 	add_child(hud)
+	# Objetivos del nivel; cuando cambian se actualiza el HUD y la meta.
 	mission = MissionSystem.new()
 	mission.name = "Missions"
 	add_child(mission)
@@ -130,6 +138,7 @@ func _ready() -> void:
 	_start_sequence()
 
 
+## Espera la transición, muestra la introducción (solo la primera vez) y programa el inicio de la persecución.
 func _start_sequence() -> void:
 	if SceneTransition.busy:
 		await SceneTransition.transition_finished
@@ -142,6 +151,7 @@ func _start_sequence() -> void:
 		_chase_timer = float(chase_data.get("delay", 5.0))
 
 
+## Cuenta el tiempo del nivel y la espera antes de que arranque la persecución.
 func _physics_process(delta: float) -> void:
 	if not finished:
 		elapsed += delta
@@ -151,6 +161,7 @@ func _physics_process(delta: float) -> void:
 			_start_chase()
 
 
+## Activa el dron patrulla y avisa al jugador.
 func _start_chase() -> void:
 	if finished or chase.active:
 		return
@@ -159,6 +170,7 @@ func _start_chase() -> void:
 	hud.show_toast("¡El dron patrulla te sigue!", 2.0, Color(1, 0.45, 0.5))
 
 
+## Agrega un amigo que sigue al jugador en fila (slot = su lugar en la fila).
 func _add_follower(id: String) -> void:
 	var f := FriendFollower.new()
 	f.friend_id = id
@@ -169,6 +181,7 @@ func _add_follower(id: String) -> void:
 	followers.append(f)
 
 
+## Lluvia con partículas, pegada a la cámara para que siempre se vea.
 func _add_rain() -> void:
 	var rain := CPUParticles2D.new()
 	rain.name = "Rain"
@@ -194,12 +207,14 @@ func _add_rain() -> void:
 # ---------------------------------------------------------------------------
 # Eventos
 # ---------------------------------------------------------------------------
+## Muestra el objetivo actual y abre o cierra la meta.
 func _on_mission_updated(text: String) -> void:
 	hud.set_objective(text)
 	if exit_node != null:
 		exit_node.set_open(mission.can_finish())
 
 
+## Avisa que se cumplió un objetivo.
 func _on_objective_completed(text: String) -> void:
 	if text.is_empty() or finished:
 		return
@@ -207,6 +222,8 @@ func _on_objective_completed(text: String) -> void:
 	AudioManager.play_sfx("checkpoint")
 
 
+## Al morir: resta una vida; si no quedan, va a "Game over"; si quedan, reaparece
+## en el último punto de control y el dron vuelve a quedar detrás.
 func _on_player_died(reason: String) -> void:
 	var lives := GameState.lose_life()
 	if lives <= 0:
@@ -223,6 +240,7 @@ func _on_player_died(reason: String) -> void:
 	hud.show_toast("%s\nVidas restantes: %d" % [reason, lives], 2.2, Color(1, 0.6, 0.6))
 
 
+## Al hablar con el amigo: diálogo, se une al grupo, cuenta para la misión y se vuelve punto de control.
 func _on_friend_talk(friend: FriendNPC) -> void:
 	await dialogue.play(friend.dialogue_id)
 	friend.celebrate()
@@ -240,6 +258,8 @@ func _on_friend_talk(friend: FriendNPC) -> void:
 		_chase_timer = float(chase_data.get("delay", 1.5))
 
 
+## Al llegar a la meta: si faltan objetivos lo avisa; si no, termina el nivel, muestra
+## el cierre de la historia, guarda el resultado y pasa a la pantalla de victoria o al final.
 func _on_exit_reached(_p: Player) -> void:
 	if finished:
 		return

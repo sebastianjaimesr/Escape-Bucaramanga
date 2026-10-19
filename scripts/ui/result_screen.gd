@@ -7,6 +7,7 @@ extends Node
 var _box: VBoxContainer
 
 
+## Construye la pantalla según el modo: victoria del nivel, game over o final de la historia.
 func _ready() -> void:
 	get_tree().paused = false
 	var backdrop := MenuBackdrop.new()
@@ -61,6 +62,7 @@ func _ready() -> void:
 			break
 
 
+## Agrega un texto centrado a la pantalla.
 func _text(text: String, size: int = 20, color: Color = UITheme.TEXT) -> Label:
 	var l := Label.new()
 	l.text = text
@@ -73,6 +75,7 @@ func _text(text: String, size: int = 20, color: Color = UITheme.TEXT) -> Label:
 	return l
 
 
+## Pantalla de nivel superado: granizados, tiempo y vidas, y botón para seguir.
 func _build_victory() -> void:
 	AudioManager.play_music("park")
 	var r: Dictionary = GameState.last_result
@@ -91,6 +94,7 @@ func _build_victory() -> void:
 	_box.add_child(UITheme.button("Menú principal", _to_menu))
 
 
+## Pantalla de derrota: explica qué pasó y permite reintentar el nivel.
 func _build_game_over() -> void:
 	AudioManager.stop_music()
 	AudioManager.play_sfx("lose")
@@ -106,6 +110,7 @@ func _build_game_over() -> void:
 		_to_menu()))
 
 
+## Pantalla final de la historia con el total de granizados.
 func _build_ending() -> void:
 	AudioManager.play_music("finale")
 	_box.add_child(UITheme.title_label("¡Fin de la aventura!", 40, Color(1, 0.85, 0.5)))
@@ -118,5 +123,6 @@ func _build_ending() -> void:
 	_box.add_child(UITheme.button("Volver al menú", _to_menu))
 
 
+## Vuelve al menú principal.
 func _to_menu() -> void:
 	SceneTransition.change_scene("res://scenes/menus/main_menu.tscn")
