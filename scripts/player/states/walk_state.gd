@@ -1,4 +1,5 @@
 extends PlayerState
+## Estado caminando a velocidad normal.
 
 
 func enter(_previous: StringName, _msg: Dictionary) -> void:

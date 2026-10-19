@@ -10,6 +10,7 @@ var _shake_time := 0.0
 var _look := 0.0
 
 
+## Zoom x2 (estilo pixel art) y movimiento suavizado.
 func _ready() -> void:
 	zoom = Vector2(2, 2)
 	position_smoothing_enabled = true
@@ -18,6 +19,7 @@ func _ready() -> void:
 	limit_smoothed = true
 
 
+## Limita la cámara al tamaño del nivel.
 func setup(level_size: Vector2) -> void:
 	limit_left = 0
 	limit_top = -24
@@ -25,12 +27,14 @@ func setup(level_size: Vector2) -> void:
 	limit_bottom = int(level_size.y)
 
 
+## Pone la cámara de golpe sobre el jugador (al empezar o reaparecer).
 func snap_to_target() -> void:
 	if target:
 		global_position = target.global_position + Vector2(0, -24)
 		reset_smoothing()
 
 
+## Sigue al jugador adelantándose hacia donde mira y aplica la sacudida.
 func _physics_process(delta: float) -> void:
 	if target == null or not is_instance_valid(target):
 		return
@@ -47,6 +51,7 @@ func _physics_process(delta: float) -> void:
 			offset = Vector2.ZERO
 
 
+## Sacude la cámara con la fuerza y duración indicadas.
 func shake(strength: float = 3.0, duration: float = 0.25) -> void:
 	_shake_strength = strength
 	_shake_time = duration

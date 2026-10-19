@@ -11,6 +11,7 @@ var _blue: PointLight2D
 var _time := 0.0
 
 
+## Crea una luz roja y una azul; empieza encendida la roja.
 func _ready() -> void:
 	var tex: Texture2D = load("res://assets/sprites/light.png")
 	_red = _make(tex, Color(1.0, 0.15, 0.2), Vector2(-6, 0))
@@ -18,6 +19,7 @@ func _ready() -> void:
 	_blue.enabled = false
 
 
+## Crea una luz puntual con el color y la posición indicados.
 func _make(tex: Texture2D, color: Color, offset: Vector2) -> PointLight2D:
 	var l := PointLight2D.new()
 	l.texture = tex
@@ -29,6 +31,7 @@ func _make(tex: Texture2D, color: Color, offset: Vector2) -> PointLight2D:
 	return l
 
 
+## Alterna las dos luces cada "interval" segundos.
 func _process(delta: float) -> void:
 	_time += delta
 	if _time >= interval:

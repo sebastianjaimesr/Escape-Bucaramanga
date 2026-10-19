@@ -13,6 +13,7 @@ var _sprite: AnimatedSprite2D
 var _headlight: PointLight2D
 
 
+## Crea la moto (sprite), una colisión "de un solo sentido" (se sube desde abajo) y sus luces.
 func _ready() -> void:
 	collision_layer = 1
 	collision_mask = 0
@@ -49,6 +50,7 @@ func _ready() -> void:
 	add_child(tail)
 
 
+## Mueve la plataforma con una onda seno: va y vuelve "distance" píxeles cada "period" segundos.
 func _physics_process(delta: float) -> void:
 	_time += delta
 	var offset := sin(_time * TAU / period) * distance

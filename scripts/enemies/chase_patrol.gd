@@ -8,9 +8,9 @@ signal distance_changed(distance: float, max_distance: float)
 signal caught_player
 
 const MAX_GAP := 520.0  ## Si el jugador se aleja más, el dron recorta distancia.
-const START_GAP := 300.0
-const RESPAWN_GAP := 340.0
-const CATCH_GAP := 10.0
+const START_GAP := 300.0  # distancia inicial al activarse
+const RESPAWN_GAP := 340.0  # distancia al reaparecer el jugador
+const CATCH_GAP := 10.0  # a esta distancia el dron alcanza al jugador
 
 var player: Player
 var active := false
@@ -25,6 +25,7 @@ var _siren: AudioStreamPlayer2D
 var _cone: PointLight2D
 
 
+## Crea el sprite del dron, las luces de patrulla, el cono de luz y la sirena.
 func _ready() -> void:
 	z_index = 6
 	visible = false
@@ -54,11 +55,13 @@ func _ready() -> void:
 	add_child(_siren)
 
 
+## Repite la sirena mientras la persecución esté activa.
 func _on_siren_finished() -> void:
 	if active and not stopped:
 		_siren.play()
 
 
+## Lee la velocidad inicial, la aceleración y la velocidad máxima del JSON del nivel.
 func configure(settings: Dictionary) -> void:
 	base_speed = float(settings.get("speed", 55.0))
 	accel = float(settings.get("accel", 0.4))
@@ -66,6 +69,7 @@ func configure(settings: Dictionary) -> void:
 	speed = base_speed
 
 
+## Empieza la persecución detrás del jugador.
 func activate() -> void:
 	if active or player == null:
 		return
@@ -79,6 +83,7 @@ func activate() -> void:
 	AudioManager.play_sfx("alert")
 
 
+## Detiene la persecución (al terminar el nivel o perder).
 func stop() -> void:
 	stopped = true
 	_siren.stop()
@@ -91,6 +96,8 @@ func reset_behind(pos: Vector2) -> void:
 	global_position = Vector2(_x, pos.y - 80.0)
 
 
+## Avanza el dron (cada vez más rápido), lo mantiene cerca si el jugador se aleja mucho,
+## emite la distancia para el HUD y, si lo alcanza, el jugador pierde una vida.
 func _physics_process(delta: float) -> void:
 	if not active or player == null:
 		return

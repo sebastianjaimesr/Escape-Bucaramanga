@@ -5,6 +5,7 @@ extends RefCounted
 const PARTICLE_TEX := "res://assets/sprites/particle.png"
 
 
+## Explosión de partículas de un solo disparo que se borra sola al terminar.
 static func burst(parent: Node, pos: Vector2, color: Color, amount: int = 12, speed: float = 90.0,
 		lifetime: float = 0.5, gravity: float = 200.0) -> void:
 	if parent == null or not parent.is_inside_tree():
@@ -35,10 +36,12 @@ static func burst(parent: Node, pos: Vector2, color: Color, amount: int = 12, sp
 	p.finished.connect(p.queue_free)
 
 
+## Pequeña nube de polvo (al saltar, aterrizar o correr).
 static func dust(parent: Node, pos: Vector2) -> void:
 	burst(parent, pos, Color(0.8, 0.78, 0.85, 0.8), 6, 40.0, 0.35, 60.0)
 
 
+## Texto que sube y se desvanece (por ejemplo, "+1" o "¡Alto!").
 static func floating_text(parent: Node, pos: Vector2, text: String, color: Color = Color.WHITE) -> void:
 	if parent == null or not parent.is_inside_tree():
 		return

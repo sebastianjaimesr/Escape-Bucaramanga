@@ -4,6 +4,7 @@ extends Node
 
 signal state_changed(from: StringName, to: StringName)
 
+# Cada estado con su script. preload los carga al compilar.
 const STATES := {
 	&"Idle": preload("res://scripts/player/states/idle_state.gd"),
 	&"Walk": preload("res://scripts/player/states/walk_state.gd"),
@@ -21,6 +22,7 @@ var current_name: StringName = &""
 var _states: Dictionary = {}
 
 
+## Crea un nodo por cada estado, le pasa el jugador y empieza en Idle.
 func setup(p: Player) -> void:
 	player = p
 	for state_name: StringName in STATES:
@@ -33,6 +35,8 @@ func setup(p: Player) -> void:
 	change_state(&"Idle")
 
 
+## Cambia de estado: llama exit() al actual y enter() al nuevo.
+## Desde Dead solo se puede volver a Idle (al reaparecer).
 func change_state(state_name: StringName, msg: Dictionary = {}) -> void:
 	if not _states.has(state_name):
 		push_error("Estado inexistente: %s" % state_name)
@@ -48,6 +52,7 @@ func change_state(state_name: StringName, msg: Dictionary = {}) -> void:
 	state_changed.emit(previous, state_name)
 
 
+## Ejecuta la lógica de física del estado actual.
 func physics_update(delta: float) -> void:
 	if current:
 		current.physics_update(delta)

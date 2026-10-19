@@ -9,6 +9,7 @@ const TEXT := Color(1.0, 0.97, 0.92)
 static var _theme: Theme
 
 
+## Estilo de panel con fondo, borde y esquinas redondeadas.
 static func panel_style(bg: Color, border: Color, width: int = 3) -> StyleBoxFlat:
 	var sb := StyleBoxFlat.new()
 	sb.bg_color = bg
@@ -24,6 +25,7 @@ static func panel_style(bg: Color, border: Color, width: int = 3) -> StyleBoxFla
 	return sb
 
 
+## Tema común de la interfaz (se crea una vez y se reutiliza).
 static func get_theme() -> Theme:
 	if _theme != null:
 		return _theme
@@ -60,6 +62,7 @@ static func get_theme() -> Theme:
 	return t
 
 
+## Botón con sonidos al enfocarlo y presionarlo.
 static func button(text: String, callback: Callable) -> Button:
 	var b := Button.new()
 	b.text = text
@@ -70,6 +73,7 @@ static func button(text: String, callback: Callable) -> Button:
 	return b
 
 
+## Título grande con borde.
 static func title_label(text: String, size: int = 40, color: Color = TEXT) -> Label:
 	var l := Label.new()
 	l.text = text

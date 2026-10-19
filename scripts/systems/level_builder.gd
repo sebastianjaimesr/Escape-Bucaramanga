@@ -2,11 +2,12 @@ class_name LevelBuilder
 extends RefCounted
 ## Convierte el mapa ASCII de data/levels/*.json en TileMapLayer y entidades.
 
-const TILE := 16
+const TILE := 16  # tamaño de una baldosa en píxeles
 const TILES_TEX := "res://assets/tilesets/tiles.png"
 const THEMES := ["calles", "comercial", "cai", "parque", "barrio", "viaducto", "final"]
-const SOLID := "#B"
+const SOLID := "#B"  # símbolos del mapa que son suelo sólido
 
+# Qué escena se crea por cada símbolo del mapa ASCII (o = granizado, ^ = vidrio, d = dron, F = amigo…).
 const SCENES := {
 	"o": "res://scenes/obstacles/collectible.tscn",
 	"p": "res://scenes/obstacles/collectible.tscn",
@@ -27,6 +28,7 @@ const SCENES := {
 
 const SHOPS := ["oxxo", "d1", "cc", "granizado"]
 
+# Decoraciones sin lógica (faroles, bancas, árboles…): solo un sprite.
 const PROPS := {
 	"L": "res://assets/sprites/lamp.png",
 	"S": "res://assets/sprites/sign_stop.png",
@@ -44,6 +46,7 @@ var height := 0
 var theme_row := 0
 
 
+## Recibe el JSON del nivel y lee el mapa: cada texto de "map" es una fila de baldosas.
 func _init(level_data: Dictionary) -> void:
 	data = level_data
 	var map_rows: Array = data.get("map", [])
@@ -53,24 +56,29 @@ func _init(level_data: Dictionary) -> void:
 	theme_row = maxi(0, THEMES.find(data.get("theme", "calles")))
 
 
+## Símbolo en la columna x y fila y; fuera del mapa devuelve "." (vacío).
 func cell(x: int, y: int) -> String:
 	if y < 0 or y >= height or x < 0 or x >= width:
 		return "."
 	return rows[y][x]
 
 
+## true si en esa celda hay suelo.
 func is_solid(x: int, y: int) -> bool:
 	return SOLID.contains(cell(x, y))
 
 
+## Tamaño del nivel en píxeles.
 func pixel_size() -> Vector2:
 	return Vector2(width * TILE, height * TILE)
 
 
+## Punto inferior central de una celda (para apoyar objetos en el suelo).
 static func bottom_center(x: int, y: int) -> Vector2:
 	return Vector2(x * TILE + TILE * 0.5, (y + 1) * TILE)
 
 
+## Centro de una celda.
 static func center(x: int, y: int) -> Vector2:
 	return Vector2(x * TILE + TILE * 0.5, y * TILE + TILE * 0.5)
 
@@ -78,6 +86,8 @@ static func center(x: int, y: int) -> Vector2:
 # ---------------------------------------------------------------------------
 # Tiles
 # ---------------------------------------------------------------------------
+## Crea el TileSet por código: una fila de baldosas por tema y colisión en cada una.
+## La columna 2 es una plataforma delgada "de un solo sentido" (se atraviesa desde abajo).
 static func make_tileset() -> TileSet:
 	var ts := TileSet.new()
 	ts.tile_size = Vector2i(TILE, TILE)
@@ -105,6 +115,7 @@ static func make_tileset() -> TileSet:
 	return ts
 
 
+## Recorre el mapa y coloca las baldosas: # suelo, B bloque, = plataforma.
 func build_tiles() -> TileMapLayer:
 	var layer := TileMapLayer.new()
 	layer.name = "Tiles"
@@ -134,6 +145,7 @@ func _fill_column(x: int, y: int) -> int:
 		depth += 1
 	if depth >= 3:
 		return 7
+	# Número pseudoaleatorio estable a partir de la posición: el mismo mapa siempre se ve igual.
 	var h := absi((x * 73856093) ^ (y * 19349663)) % 13
 	var chance := 4 if data.get("theme", "") == "barrio" else 2
 	if h < chance:
@@ -150,6 +162,7 @@ func spawn_entities(world: Node2D, props_root: Node2D, entities_root: Node2D) ->
 		"total_granizados": 0, "total_pistas": 0}
 	var hints: Array = data.get("hints", [])
 	var hint_index := 0
+	# Guarda cada escena ya cargada para no cargarla de nuevo por cada símbolo.
 	var packed_cache := {}
 	for x in width:
 		for y in height:
@@ -175,6 +188,7 @@ func spawn_entities(world: Node2D, props_root: Node2D, entities_root: Node2D) ->
 			if not packed_cache.has(path):
 				packed_cache[path] = load(path)
 			var node = packed_cache[path].instantiate()  # sin tipo: cada escena expone propiedades propias
+			# Configura cada entidad según su símbolo.
 			match ch:
 				"o", "p", "h":
 					node.kind = {"o": "granizado", "p": "pista", "h": "heart"}[ch]
@@ -225,6 +239,7 @@ static func shop_at(x: int) -> String:
 	return SHOPS[(x * 7) % SHOPS.size()]
 
 
+## Límites izquierdo y derecho del tramo de suelo donde patrulla un policía (máximo 7 baldosas a cada lado).
 func _ground_bounds(x: int, y: int) -> Vector2:
 	var left := x
 	var right := x
@@ -235,6 +250,7 @@ func _ground_bounds(x: int, y: int) -> Vector2:
 	return Vector2(left * TILE + 6, (right + 1) * TILE - 6)
 
 
+## Crea una decoración; algunos llevan luz (faroles, tiendas) o luces de patrulla.
 func _spawn_prop(ch: String, x: int, y: int, root: Node2D) -> void:
 	var tex_path := ""
 	if ch == "T":

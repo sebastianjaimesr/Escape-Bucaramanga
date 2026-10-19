@@ -8,6 +8,7 @@ var _menu: VBoxContainer
 var _options: OptionsPanel
 
 
+## Construye la pantalla de pausa (oculta); funciona aunque el juego esté en pausa.
 func _ready() -> void:
 	layer = 20
 	process_mode = Node.PROCESS_MODE_ALWAYS
@@ -38,6 +39,7 @@ func _ready() -> void:
 	_root.visible = false
 
 
+## Abre o cierra la pausa con el botón de pausa.
 func _process(_delta: float) -> void:
 	if Input.is_action_just_pressed("pause"):
 		if is_open:
@@ -47,6 +49,7 @@ func _process(_delta: float) -> void:
 			open()
 
 
+## No se puede pausar durante una transición, un diálogo o si el juego ya está pausado.
 func _can_open() -> bool:
 	if SceneTransition.busy:
 		return false
@@ -56,6 +59,7 @@ func _can_open() -> bool:
 	return not get_tree().paused
 
 
+## Pausa el juego y muestra el menú.
 func open() -> void:
 	is_open = true
 	_root.visible = true
@@ -63,17 +67,20 @@ func open() -> void:
 	(_menu.get_child(1) as Button).grab_focus()
 
 
+## Quita la pausa y oculta el menú.
 func close() -> void:
 	is_open = false
 	_root.visible = false
 	get_tree().paused = false
 
 
+## Reinicia el nivel actual.
 func _restart() -> void:
 	close()
 	GameState.restart_level()
 
 
+## Abre las opciones dentro de la pausa.
 func _open_options() -> void:
 	_menu.visible = false
 	_options = OptionsPanel.new()
@@ -84,6 +91,7 @@ func _open_options() -> void:
 		(_menu.get_child(3) as Button).grab_focus())
 
 
+## Guarda y vuelve al menú principal.
 func _to_menu() -> void:
 	close()
 	SaveSystem.save_game()

@@ -8,6 +8,7 @@ var _passed := 0
 var _current := ""
 
 
+## Ejecuta todas las pruebas en orden y termina con código 0 (todo bien) o 1 (fallos).
 func _ready() -> void:
 	process_mode = Node.PROCESS_MODE_ALWAYS
 	# El runner no debe ser la escena actual: las transiciones la reemplazan.
@@ -73,11 +74,13 @@ func _ready() -> void:
 var _before := 0
 
 
+## Marca el inicio de una prueba.
 func _begin(test_name: String) -> void:
 	_current = test_name
 	_before = _failures.size()
 
 
+## Marca el final: [OK] si no hubo fallos nuevos, [FALLO] si los hubo.
 func _end() -> void:
 	if _failures.size() == _before:
 		_passed += 1
@@ -87,16 +90,19 @@ func _end() -> void:
 	get_tree().paused = false
 
 
+## Comprobación: si la condición es falsa, registra el mensaje como fallo.
 func check(cond: bool, msg: String) -> void:
 	if not cond:
 		_failures.append("%s: %s" % [_current, msg])
 
 
+## Espera n cuadros de física (deja que el juego avance).
 func frames(n: int) -> void:
 	for i in n:
 		await get_tree().physics_frame
 
 
+## Carga un nivel para probarlo.
 func spawn_level(level_id: String) -> Level:
 	GameState.current_level = GameState.level_index_of(level_id)
 	GameState.friends = GameState.friends_before(GameState.current_level)
@@ -111,6 +117,7 @@ func spawn_level(level_id: String) -> Level:
 	return level
 
 
+## Borra el nivel de prueba.
 func free_level(level: Level) -> void:
 	level.queue_free()
 	await get_tree().process_frame
@@ -118,6 +125,7 @@ func free_level(level: Level) -> void:
 
 
 # ---------------------------------------------------------------------------
+## Prueba: los archivos JSON de niveles y diálogos existen y son válidos.
 func test_data_files() -> void:
 	check(GameState.level_count() == 7, "Se esperaban 7 niveles, hay %d" % GameState.level_count())
 	for info: Dictionary in GameState.levels:
@@ -134,6 +142,7 @@ func test_data_files() -> void:
 			check(ResourceLoader.exists(GameState.character_sheet(friend["id"])), "Falta spritesheet de %s" % friend["id"])
 
 
+## Prueba: los 7 niveles se construyen sin errores.
 func test_all_levels_build() -> void:
 	for info: Dictionary in GameState.levels:
 		var level := spawn_level(info["id"])
@@ -149,6 +158,7 @@ func test_all_levels_build() -> void:
 		await free_level(level)
 
 
+## Prueba: el jugador camina y salta.
 func test_movement_and_jump() -> void:
 	var level := spawn_level("level_01")
 	var p := level.player
@@ -183,6 +193,7 @@ func test_movement_and_jump() -> void:
 	await free_level(level)
 
 
+## Prueba: el jugador se queda sobre el suelo (no lo atraviesa).
 func test_collisions_floor() -> void:
 	var level := spawn_level("level_01")
 	var p := level.player
@@ -195,6 +206,7 @@ func test_collisions_floor() -> void:
 	await free_level(level)
 
 
+## Prueba: recoger un granizado suma al contador.
 func test_collectible() -> void:
 	var level := spawn_level("level_01")
 	await frames(5)
@@ -211,6 +223,7 @@ func test_collectible() -> void:
 	await free_level(level)
 
 
+## Prueba: la tienda de granizado da una vida extra.
 func test_life_pickup_at_granizado_shop() -> void:
 	var level := spawn_level("level_02")
 	await frames(5)
@@ -228,6 +241,7 @@ func test_life_pickup_at_granizado_shop() -> void:
 	await free_level(level)
 
 
+## Prueba: el daño resta salud y al morir se reaparece en el punto de control.
 func test_damage_and_checkpoint_respawn() -> void:
 	var level := spawn_level("level_01")
 	var p := level.player
@@ -249,6 +263,7 @@ func test_damage_and_checkpoint_respawn() -> void:
 	await free_level(level)
 
 
+## Prueba: caer al vacío quita una vida.
 func test_pit_death() -> void:
 	var level := spawn_level("level_01")
 	var p := level.player
@@ -263,6 +278,7 @@ func test_pit_death() -> void:
 	await free_level(level)
 
 
+## Prueba: si la patrulla alcanza al jugador, este pierde una vida.
 func test_chase_catches_player() -> void:
 	var level := spawn_level("level_01")
 	var p := level.player
@@ -279,6 +295,7 @@ func test_chase_catches_player() -> void:
 	await free_level(level)
 
 
+## Prueba: la meta está cerrada hasta cumplir la misión.
 func test_mission_locks_exit() -> void:
 	var level := spawn_level("level_02")
 	await frames(5)
@@ -295,6 +312,7 @@ func test_mission_locks_exit() -> void:
 	await free_level(level)
 
 
+## Prueba: al hablar con el amigo, se une al grupo.
 func test_friend_joins() -> void:
 	var level := spawn_level("level_04")
 	await frames(5)
@@ -325,6 +343,7 @@ func test_friend_joins() -> void:
 	await free_level(level)
 
 
+## Prueba: guardar y cargar la partida conserva el progreso.
 func test_save_and_load() -> void:
 	var backup := ""
 	if FileAccess.file_exists(SaveSystem.SAVE_PATH):
@@ -352,6 +371,7 @@ func test_save_and_load() -> void:
 		GameState.best_granizados.clear()
 
 
+## Prueba: la transición cambia de escena.
 func test_scene_transition() -> void:
 	SceneTransition.change_scene("res://scenes/levels/level_03.tscn", "Prueba")
 	await SceneTransition.transition_finished
@@ -362,6 +382,7 @@ func test_scene_transition() -> void:
 	check(get_tree().current_scene != null and get_tree().current_scene.name == "MainMenu", "No volvió al menú")
 
 
+## Prueba: el tiempo promedio por cuadro de física está dentro del límite.
 func test_performance() -> void:
 	var level := spawn_level("level_06")
 	level._start_chase()

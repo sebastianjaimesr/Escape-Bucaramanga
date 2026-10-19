@@ -6,14 +6,17 @@ var player: Player
 var machine: PlayerStateMachine
 
 
+## Se llama al entrar al estado; previous es el estado anterior y msg trae datos extra.
 func enter(_previous: StringName, _msg: Dictionary) -> void:
 	pass
 
 
+## Se llama al salir del estado.
 func exit() -> void:
 	pass
 
 
+## Lógica de cada cuadro de física mientras el estado está activo.
 func physics_update(_delta: float) -> void:
 	pass
 
@@ -29,6 +32,7 @@ func check_air_transitions() -> bool:
 	return false
 
 
+## Estado de suelo que corresponde a la entrada: quieto, caminar o correr.
 func ground_state_name() -> StringName:
 	if absf(player.move_axis()) < 0.05:
 		return &"Idle"

@@ -13,6 +13,7 @@ extends Node2D
 const GROUND_Y := 272.0
 
 
+## Arma la escena de fondo: parallax, suelo, personajes corriendo y la patrulla.
 func _ready() -> void:
 	ParallaxBuilder.build(self, theme_name, scroll_speed if running else 0.0)
 	var night := CanvasModulate.new()
@@ -56,6 +57,7 @@ func _ready() -> void:
 		add_child(lamp)
 
 
+## Suelo que se desplaza para dar sensación de carrera.
 func _build_ground() -> void:
 	var p := Parallax2D.new()
 	p.repeat_size = Vector2(480, 0)

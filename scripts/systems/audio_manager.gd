@@ -3,7 +3,7 @@ extends Node
 
 const MUSIC_DIR := "res://assets/audio/music/"
 const SFX_DIR := "res://assets/audio/sfx/"
-const SFX_VOICES := 10
+const SFX_VOICES := 10  # cuántos efectos pueden sonar al mismo tiempo
 
 var _music: AudioStreamPlayer
 var _current_music := ""
@@ -12,6 +12,7 @@ var _next_voice := 0
 var _cache: Dictionary = {}
 
 
+## Crea los buses de audio, el reproductor de música y 10 reproductores para efectos.
 func _ready() -> void:
 	process_mode = Node.PROCESS_MODE_ALWAYS
 	_ensure_bus("Music")
@@ -27,6 +28,7 @@ func _ready() -> void:
 		_voices.append(p)
 
 
+## Crea un bus de audio si no existe (Music o SFX) y lo envía al principal.
 func _ensure_bus(bus_name: String) -> void:
 	if AudioServer.get_bus_index(bus_name) != -1:
 		return
@@ -36,6 +38,7 @@ func _ensure_bus(bus_name: String) -> void:
 	AudioServer.set_bus_send(idx, "Master")
 
 
+## Cambia el volumen de un bus con un valor de 0 a 1 (se convierte a decibelios).
 func set_bus_volume(bus_name: String, linear: float) -> void:
 	_ensure_bus(bus_name)
 	var idx := AudioServer.get_bus_index(bus_name)
@@ -43,6 +46,7 @@ func set_bus_volume(bus_name: String, linear: float) -> void:
 	AudioServer.set_bus_mute(idx, linear <= 0.001)
 
 
+## Carga un audio una sola vez y lo guarda en caché.
 func _load(path: String) -> AudioStream:
 	if _cache.has(path):
 		return _cache[path]
@@ -54,6 +58,7 @@ func _load(path: String) -> AudioStream:
 	return stream
 
 
+## Reproduce una pista de música (si ya suena, no la reinicia).
 func play_music(track: String) -> void:
 	if track == _current_music and _music.playing:
 		return
@@ -66,16 +71,20 @@ func play_music(track: String) -> void:
 	_music.play()
 
 
+## Detiene la música.
 func stop_music() -> void:
 	_current_music = ""
 	_music.stop()
 
 
+## Repite la música al terminar (bucle).
 func _on_music_finished() -> void:
 	if _current_music != "":
 		_music.play()
 
 
+## Reproduce un efecto con el siguiente reproductor libre (rotación circular);
+## pitch_variation cambia un poco el tono para que no suene repetitivo.
 func play_sfx(sfx_name: String, pitch_variation: float = 0.0) -> void:
 	var stream := _load(SFX_DIR + sfx_name + ".wav")
 	if stream == null:

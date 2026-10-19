@@ -8,6 +8,7 @@ var _sprite: AnimatedSprite2D
 var _light: PointLight2D
 
 
+## Crea el sprite, la luz verde (apagada) y la zona que detecta al jugador.
 func _ready() -> void:
 	add_to_group("checkpoints")
 	collision_layer = 0
@@ -34,12 +35,15 @@ func _ready() -> void:
 	body_entered.connect(_on_body_entered)
 
 
+## Se activa la primera vez que el jugador lo toca.
 func _on_body_entered(body: Node2D) -> void:
 	if is_active or not body is Player or (body as Player).is_dead:
 		return
 	activate()
 
 
+## Activa este punto de control y apaga los demás; guarda la posición de reaparición.
+## silent=true lo activa sin sonido ni efectos.
 func activate(silent: bool = false) -> void:
 	for other in get_tree().get_nodes_in_group("checkpoints"):
 		if other != self and other.is_active:
@@ -55,6 +59,7 @@ func activate(silent: bool = false) -> void:
 	activated.emit(self)
 
 
+## Apaga el punto de control.
 func deactivate() -> void:
 	is_active = false
 	_sprite.frame = 0

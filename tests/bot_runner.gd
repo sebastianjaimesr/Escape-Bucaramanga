@@ -10,6 +10,7 @@ var _results: Array[String] = []
 var _failed := 0
 
 
+## Recorre todos los niveles (o solo el de BOT_LEVEL) y sale con 0 si todos se pueden completar.
 func _ready() -> void:
 	process_mode = Node.PROCESS_MODE_ALWAYS
 	for i in GameState.level_count():
@@ -28,6 +29,7 @@ func _ready() -> void:
 	get_tree().quit(0 if _failed == 0 else 1)
 
 
+## Carga un nivel y lo juega solo: avanza a la derecha y salta cuando hace falta, con un límite de tiempo.
 func _run_level(level_id: String) -> void:
 	GameState.current_level = GameState.level_index_of(level_id)
 	GameState.friends = GameState.friends_before(GameState.current_level)

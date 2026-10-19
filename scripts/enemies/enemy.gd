@@ -8,6 +8,7 @@ extends Area2D
 var defeated := false
 
 
+## Crea la zona de contacto: solo detecta al jugador (máscara 2).
 func _setup_area(size: Vector2, offset: Vector2) -> void:
 	collision_layer = 0
 	collision_mask = 2
@@ -21,6 +22,8 @@ func _setup_area(size: Vector2, offset: Vector2) -> void:
 	add_child(shape)
 
 
+## Revisa si toca al jugador: si cae desde arriba y se puede pisar, rebota y lo derrota;
+## si no, el jugador recibe daño.
 func _check_player_contact() -> void:
 	if defeated:
 		return
@@ -38,6 +41,7 @@ func _check_player_contact() -> void:
 		p.take_damage(damage, global_position)
 
 
+## Derrota al enemigo con sonido, partículas y una animación de aplastado; luego se borra.
 func defeat() -> void:
 	defeated = true
 	AudioManager.play_sfx("stomp")

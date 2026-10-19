@@ -10,6 +10,7 @@ var _time := 0.0
 var _sprite: AnimatedSprite2D
 
 
+## Crea la zona de contacto, el sprite animado y una luz roja.
 func _ready() -> void:
 	can_be_stomped = true
 	_setup_area(Vector2(12, 8), Vector2(0, 1))
@@ -27,6 +28,7 @@ func _ready() -> void:
 	_time = position.x * 0.01
 
 
+## Vuela en forma de ocho alrededor de su punto de origen (seno en x y en y).
 func _physics_process(delta: float) -> void:
 	if defeated:
 		return

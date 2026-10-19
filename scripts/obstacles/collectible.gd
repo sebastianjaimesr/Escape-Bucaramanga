@@ -9,6 +9,7 @@ var _time := 0.0
 var _taken := false
 
 
+## Crea la colisión circular y el sprite según el tipo; los especiales llevan un brillo.
 func _ready() -> void:
 	collision_layer = 0
 	collision_mask = 2
@@ -43,11 +44,14 @@ func _ready() -> void:
 	body_entered.connect(_on_body_entered)
 
 
+## Movimiento suave de arriba abajo.
 func _process(delta: float) -> void:
 	_time += delta
 	position.y = _base_y + sin(_time * 3.0) * 1.5
 
 
+## Al tocarlo el jugador: aplica el efecto según el tipo (pista, corazón, vida o granizado)
+## y se borra. _taken evita que se cuente dos veces.
 func _on_body_entered(body: Node2D) -> void:
 	if _taken or not body is Player or (body as Player).is_dead:
 		return

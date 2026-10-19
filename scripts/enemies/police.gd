@@ -10,6 +10,7 @@ var _sprite: AnimatedSprite2D
 var _stop_time := 0.0
 
 
+## Crea la zona de contacto, las animaciones (caminar y detenerse) y el tramo de patrulla.
 func _ready() -> void:
 	can_be_stomped = false
 	_setup_area(Vector2(12, 26), Vector2(0, -13))
@@ -30,6 +31,7 @@ func _ready() -> void:
 	body_entered.connect(_on_body_entered)
 
 
+## Camina de un extremo a otro de su tramo; si está detenido, espera.
 func _physics_process(delta: float) -> void:
 	if _stop_time > 0.0:
 		_stop_time -= delta
@@ -47,6 +49,7 @@ func _physics_process(delta: float) -> void:
 	_check_player_contact()
 
 
+## Al tocar al jugador se detiene un segundo y muestra "¡Alto!".
 func _on_body_entered(body: Node2D) -> void:
 	if body is Player and not (body as Player).is_invulnerable():
 		_stop_time = 1.0

@@ -1,4 +1,5 @@
 extends PlayerState
+## Estado quieto: aplica gravedad y fricción y cambia al moverse o saltar.
 
 
 func enter(_previous: StringName, _msg: Dictionary) -> void:

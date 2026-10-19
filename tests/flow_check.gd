@@ -2,6 +2,8 @@ extends Node
 ## Comprobación del flujo real: menú -> nivel con introducción -> persecución.
 
 
+## Inicia el nivel 1 como lo haría el menú, avanza el diálogo de introducción y muestra en consola
+## si el juego se pausó y si la persecución arrancó después de la espera.
 func _ready() -> void:
 	process_mode = Node.PROCESS_MODE_ALWAYS
 	var dummy := Node.new()

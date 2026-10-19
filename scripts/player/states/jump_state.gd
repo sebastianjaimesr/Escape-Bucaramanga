@@ -1,4 +1,5 @@
 extends PlayerState
+## Estado saltando: salto variable (soltar el botón corta la subida).
 
 var _can_cut := true
 

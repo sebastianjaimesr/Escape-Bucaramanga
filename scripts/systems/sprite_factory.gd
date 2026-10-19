@@ -2,7 +2,7 @@ class_name SpriteFactory
 extends RefCounted
 ## Construye SpriteFrames a partir de spritesheets con cuadros separados.
 
-const FRAME := 32
+const FRAME := 32  # tamaño de cada cuadro de personaje en píxeles
 ## [nombre, cuadros, fps, bucle] en el mismo orden que las filas del spritesheet.
 const CHARACTER_ANIMS := [
 	["idle", 4, 5.0, true],
@@ -14,9 +14,11 @@ const CHARACTER_ANIMS := [
 	["interact", 4, 8.0, true],
 ]
 
+# Caché compartida: cada hoja de sprites se procesa una sola vez.
 static var _cache: Dictionary = {}
 
 
+## Animaciones de un personaje: cada fila de la hoja es una animación y cada columna un cuadro.
 static func character_frames(sheet_path: String) -> SpriteFrames:
 	if _cache.has(sheet_path):
 		return _cache[sheet_path]
@@ -57,6 +59,7 @@ static func strip_frames(sheet_path: String, frame_size: Vector2i, fps: float = 
 	return frames
 
 
+## Recorta una región de una imagen.
 static func atlas(sheet_path: String, region: Rect2) -> AtlasTexture:
 	var at := AtlasTexture.new()
 	at.atlas = load(sheet_path)

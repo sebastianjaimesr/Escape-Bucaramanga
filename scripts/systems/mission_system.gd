@@ -11,6 +11,7 @@ var friend_found := false
 var _done: Dictionary = {}
 
 
+## Recibe los objetivos del JSON y escucha los contadores de granizados y pistas.
 func setup(defs: Array) -> void:
 	objectives = defs.duplicate(true)
 	GameState.granizados_changed.connect(_on_count_changed)
@@ -22,11 +23,13 @@ func _on_count_changed(_count: int) -> void:
 	refresh()
 
 
+## Marca que ya se encontró al amigo del nivel.
 func mark_friend_found() -> void:
 	friend_found = true
 	refresh()
 
 
+## Indica si un objetivo está cumplido según su tipo.
 func is_done(obj: Dictionary) -> bool:
 	match String(obj.get("type", "")):
 		"collect":
@@ -48,6 +51,7 @@ func can_finish() -> bool:
 	return true
 
 
+## Texto del primer objetivo pendiente (para avisar en la meta).
 func pending_text() -> String:
 	for obj: Dictionary in objectives:
 		if obj.get("type") != "reach_exit" and not is_done(obj):
@@ -55,6 +59,7 @@ func pending_text() -> String:
 	return ""
 
 
+## Texto de un objetivo con su progreso, por ejemplo "Recoge granizados (3/10)".
 func describe(obj: Dictionary) -> String:
 	var text: String = obj.get("text", "")
 	match String(obj.get("type", "")):
@@ -65,6 +70,7 @@ func describe(obj: Dictionary) -> String:
 	return text
 
 
+## Texto del objetivo actual para el HUD.
 func current_text() -> String:
 	for obj: Dictionary in objectives:
 		if not is_done(obj):
@@ -72,6 +78,7 @@ func current_text() -> String:
 	return "¡Objetivos cumplidos!"
 
 
+## Revisa los objetivos, avisa los recién cumplidos (una sola vez) y actualiza el texto.
 func refresh() -> void:
 	for i in objectives.size():
 		var obj: Dictionary = objectives[i]

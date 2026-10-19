@@ -5,15 +5,18 @@ const SAVE_PATH := "user://save.json"
 const VERSION := 1
 
 
+## Al iniciar el juego carga la partida guardada y aplica la configuración.
 func _ready() -> void:
 	load_game()
 	apply_settings()
 
 
+## true si existe una partida guardada.
 func has_save() -> bool:
 	return FileAccess.file_exists(SAVE_PATH)
 
 
+## Guarda progreso y configuración en JSON. Devuelve false si no se pudo escribir.
 func save_game() -> bool:
 	var data := {
 		"version": VERSION,
@@ -33,6 +36,7 @@ func save_game() -> bool:
 	return true
 
 
+## Lee la partida guardada; si el archivo está dañado lo ignora.
 func load_game() -> bool:
 	if not has_save():
 		return false
@@ -53,11 +57,13 @@ func load_game() -> bool:
 	return true
 
 
+## Borra la partida guardada.
 func delete_save() -> void:
 	if has_save():
 		DirAccess.remove_absolute(ProjectSettings.globalize_path(SAVE_PATH))
 
 
+## Aplica volumen de música y efectos y la pantalla completa.
 func apply_settings() -> void:
 	AudioManager.set_bus_volume("Music", float(GameState.settings.get("music", 0.7)))
 	AudioManager.set_bus_volume("SFX", float(GameState.settings.get("sfx", 0.85)))

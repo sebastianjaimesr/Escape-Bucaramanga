@@ -1,4 +1,5 @@
 extends PlayerState
+## Estado cayendo: permite el salto con coyote time y aterrizar.
 
 
 func enter(_previous: StringName, _msg: Dictionary) -> void:

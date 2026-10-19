@@ -26,20 +26,24 @@ G = 16  # fila superior del suelo por defecto
 
 
 class Map:
+    # Mapa vacío: lista de columnas; x es la siguiente columna libre y top la altura del suelo.
     def __init__(self):
         self.cols = []
         self.x = 0
         self.top = G
 
+    # Devuelve la columna x, creándola (vacía) si todavía no existe.
     def _col(self, x):
         while len(self.cols) <= x:
             self.cols.append(["."] * H)
         return self.cols[x]
 
+    # Pone un símbolo en (x, y) si está dentro del alto del mapa.
     def set(self, x, y, ch):
         if 0 <= y < H:
             self._col(x)[y] = ch
 
+    # Agrega n columnas de suelo desde la posición actual y devuelve dónde empezaron.
     def ground(self, n, top=None, fill="#"):
         if top is not None:
             self.top = top
@@ -51,6 +55,7 @@ class Map:
         self.x += n
         return start
 
+    # Agrega un hueco (vacío) de n columnas.
     def pit(self, n):
         start = self.x
         for i in range(n):
@@ -63,6 +68,7 @@ class Map:
         t = self.surface(x) if top is None else top
         self.set(x, t - 1 + dy, ch)
 
+    # Fila donde empieza el suelo en la columna x.
     def surface(self, x):
         col = self._col(x)
         for y in range(H):
@@ -70,20 +76,24 @@ class Map:
                 return y
         return H
 
+    # Pone el mismo símbolo en n columnas seguidas de una fila.
     def row(self, x0, n, y, ch):
         for i in range(n):
             self.set(x0 + i, y, ch)
 
+    # Fila de granizados en arco (los del medio un poco más arriba).
     def coins_arc(self, x0, n, y):
         for i in range(n):
             lift = 1 if 0 < i < n - 1 else 0
             self.set(x0 + i, y - lift, "o")
 
+    # Convierte las columnas en filas de texto (el formato del JSON).
     def rows(self):
         w = len(self.cols)
         return ["".join(self.cols[x][y] for x in range(w)) for y in range(H)]
 
 
+# Nivel 1: calles nocturnas (tutorial).
 def level_1():
     m = Map()
     s = m.ground(16)
@@ -121,6 +131,7 @@ def level_1():
     return m.rows()
 
 
+# Nivel 2: sector comercial (misión de granizados).
 def level_2():
     m = Map()
     s = m.ground(14)
@@ -167,6 +178,7 @@ def level_2():
     return m.rows()
 
 
+# Nivel 3: el CAI (barreras, drones y pistas).
 def level_3():
     m = Map()
     s = m.ground(14, top=15)
@@ -208,6 +220,7 @@ def level_3():
     return m.rows()
 
 
+# Nivel 4: el parque (encuentro con Buitrago).
 def level_4():
     m = Map()
     s = m.ground(16, top=15, fill="#")
@@ -241,6 +254,7 @@ def level_4():
     return m.rows()
 
 
+# Nivel 5: el barrio (encuentro con Diaz).
 def level_5():
     m = Map()
     s = m.ground(12, top=15)
@@ -292,6 +306,7 @@ def level_5():
     return m.rows()
 
 
+# Nivel 6: el puente de la Novena (rescate de Gordo).
 def level_6():
     m = Map()
     s = m.ground(16, top=13)
@@ -334,6 +349,7 @@ def level_6():
     return m.rows()
 
 
+# Nivel 7: encuentro final hasta el mirador.
 def level_7():
     m = Map()
     s = m.ground(14, top=15)
@@ -423,6 +439,8 @@ LEVELS = [
 ]
 
 
+# Comprueba que todas las filas midan lo mismo, que haya un solo inicio (P) y una sola meta (X)
+# y que ningún hueco sea más ancho que 7 columnas.
 def validate(lid, rows):
     w = len(rows[0])
     assert all(len(r) == w for r in rows), lid
@@ -440,6 +458,7 @@ def validate(lid, rows):
     return w
 
 
+# Genera los JSON de los 7 niveles y el índice levels.json.
 def main():
     out_dir = os.path.join(ROOT, "data", "levels")
     os.makedirs(out_dir, exist_ok=True)

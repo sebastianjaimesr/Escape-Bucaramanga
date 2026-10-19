@@ -14,6 +14,7 @@ SR = 22050
 rng = np.random.default_rng(1234)
 
 
+# Guarda una señal como archivo WAV de 16 bits.
 def save(name, data, folder):
     data = np.clip(data, -1.0, 1.0)
     pcm = (data * 32000).astype(np.int16)
@@ -26,14 +27,17 @@ def save(name, data, folder):
         w.writeframes(pcm.tobytes())
 
 
+# Eje de tiempo (en segundos) para una duración.
 def t_axis(dur):
     return np.arange(int(SR * dur)) / SR
 
 
+# Frecuencia en Hz de una nota MIDI (69 = La 440 Hz).
 def freq(note):
     return 440.0 * 2 ** ((note - 69) / 12.0)
 
 
+# Onda cuadrada (sonido de consola clásica); f puede ser fija o variar en el tiempo.
 def square(f, dur, duty=0.5):
     t = t_axis(dur)
     if np.isscalar(f):
@@ -43,16 +47,19 @@ def square(f, dur, duty=0.5):
     return np.where(ph < duty, 1.0, -1.0)
 
 
+# Onda triangular (sonido más suave).
 def triangle(f, dur):
     t = t_axis(dur)
     ph = (t * f) % 1.0
     return 4 * np.abs(ph - 0.5) - 1
 
 
+# Ruido blanco (para percusión y golpes).
 def noise(dur):
     return rng.uniform(-1, 1, int(SR * dur))
 
 
+# Envolvente ADSR: ataque, decaimiento, sostenido y liberación del volumen.
 def env(n, a=0.005, d=0.1, s=0.6, r=0.05, dur=None):
     total = n / SR
     out = np.ones(n) * s
@@ -68,6 +75,7 @@ def env(n, a=0.005, d=0.1, s=0.6, r=0.05, dur=None):
     return out
 
 
+# Caída exponencial del volumen.
 def decay(n, k=8.0):
     return np.exp(-np.linspace(0, k, n))
 
@@ -76,6 +84,7 @@ def decay(n, k=8.0):
 # Efectos
 # ---------------------------------------------------------------------------
 
+# Genera todos los efectos de sonido.
 def sfx():
     d = 0.18
     f = np.linspace(330, 880, int(SR * d))
@@ -152,6 +161,7 @@ def sfx():
 # Música
 # ---------------------------------------------------------------------------
 
+# Compone una pista: acordes, melodía, bajo y batería según el tempo.
 def render_track(bpm, bars, chords, melody, bass_style="eighth", drums=True, lead_duty=0.25, swing=0.0,
                  pad=True, volume=0.8):
     beat = 60.0 / bpm
@@ -159,6 +169,7 @@ def render_track(bpm, bars, chords, melody, bass_style="eighth", drums=True, lea
     total = int(SR * bar_len * bars)
     out = np.zeros(total)
 
+    # Suma una señal a la pista en el segundo indicado.
     def put(sig, start):
         i = int(start * SR)
         j = min(total, i + len(sig))
@@ -215,6 +226,7 @@ def render_track(bpm, bars, chords, melody, bass_style="eighth", drums=True, lea
     return out
 
 
+# Genera todas las pistas de música.
 def music():
     # Persecución nocturna (tensa, menor)
     chords = [(57, "m"), (53, ""), (55, ""), (52, "")]  # Am F G E

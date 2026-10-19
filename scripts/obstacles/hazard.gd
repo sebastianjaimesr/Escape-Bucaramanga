@@ -5,6 +5,7 @@ extends Area2D
 @export var damage := 1
 
 
+## Crea el sprite y la colisión según el tipo (vidrio bajo y ancho, cono alto y delgado).
 func _ready() -> void:
 	collision_layer = 0
 	collision_mask = 2
@@ -26,6 +27,7 @@ func _ready() -> void:
 	add_child(shape)
 
 
+## Mientras el jugador lo toque recibe daño (la invulnerabilidad evita golpes seguidos).
 func _physics_process(_delta: float) -> void:
 	for body in get_overlapping_bodies():
 		if body is Player:

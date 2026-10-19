@@ -54,6 +54,7 @@ GLYPHS = {
 }
 
 
+# Ancho en píxeles de un texto con la fuente de 5 píxeles.
 def text_width(text, spacing=1):
     return max(0, len(text) * (5 + spacing) - spacing)
 
