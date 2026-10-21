@@ -127,7 +127,7 @@ def level_2():
     m.on(s + 2, "P"); m.on(s + 5, "w"); m.on(s + 10, "w"); m.on(s + 1, "!")
     m.row(s + 8, 5, 12, "="); m.coins_arc(s + 8, 5, 11)
     s = m.ground(16)
-    m.on(s + 3, "c"); m.on(s + 8, "L"); m.on(s + 12, "w")
+    m.on(s + 3, "c"); m.on(s + 8, "L")
     m.row(s + 6, 4, 11, "="); m.row(s + 11, 4, 9, "="); m.coins_arc(s + 11, 4, 8); m.set(s + 13, 8, "o")
     m.on(s + 6, "^"); m.on(s + 7, "^")
     m.pit(4)
