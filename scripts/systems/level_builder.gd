@@ -135,7 +135,8 @@ func _fill_column(x: int, y: int) -> int:
 	if depth >= 3:
 		return 7
 	var h := absi((x * 73856093) ^ (y * 19349663)) % 13
-	var chance := 4 if data.get("theme", "") == "barrio" else 2
+	# El barrio usa ladrillo liso, sin ventanas, enredaderas ni murales.
+	var chance := 0 if data.get("theme", "") == "barrio" else 2
 	if h < chance:
 		return 4 + h % 3
 	return 1
