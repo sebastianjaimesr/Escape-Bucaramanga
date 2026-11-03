@@ -1,95 +1,54 @@
 # Escape de Bucaramanga
 
-Juego de plataformas 2D de acción nocturna hecho en **Godot 4 (GDScript)**. Sebas, un joven de camiseta roja y mochila negra, es confundido con un ladrón durante una noche en Bucaramanga. Debe atravesar siete niveles inspirados en la ciudad, reunir a sus tres amigos y llegar al mirador para aclarar todo, mientras un dron patrulla ficticio lo sigue.
+Aventura urbana en tercera persona inspirada en Bucaramanga, Santander (Colombia), hecha en **Godot 4.7**. Sebastián y sus tres amigos recorren la ciudad para aclarar un malentendido mientras la policía (ficticia) los busca.
 
-> Obra de ficción. Los lugares están inspirados en Bucaramanga, no son reproducciones exactas. La persecución es una mecánica de juego con reglas claras.
+> Estado: **en desarrollo, Fase 2 de 12** (prototipo de cámara y movimiento). Ver [DOCUMENTACION/PLAN_DE_DESARROLLO.md](DOCUMENTACION/PLAN_DE_DESARROLLO.md).
+> La versión 2D original está completa y jugable en [`clasico-2d/`](clasico-2d/).
 
-## Requisitos
+Los lugares están inspirados en Bucaramanga; no son reproducciones exactas.
 
-- Godot **4.4 o superior** (versión estándar, no .NET). Probado con **Godot 4.7.2**.
-- Para regenerar arte, audio o niveles: Python 3 con `Pillow` y `numpy`.
+## Qué hay hoy (Fase 2)
 
-## Ejecutar el juego
+- Manzana de prueba en 3D: cruce de dos calles, aceras con bordillo, pasos de cebra, edificios variados, y una plaza con escaleras, rampa, pendiente empinada, túnel bajo y cajas.
+- Personaje provisional (figura simple con la ropa de Sebastián) que camina, corre, salta y se agacha, con resistencia, subida de escalones y bordillos.
+- Cámara en tercera persona con ratón o mando, que no atraviesa paredes.
+- Menú, pausa, configuración (calidad Bajo/Medio/Alto, cámara, controles reasignables) y medidor de rendimiento (F3).
+- 24 pruebas automáticas.
 
-1. Abre Godot, elige **Importar**, selecciona `project.godot` de esta carpeta.
-2. Presiona **F5** (o el botón ▶). La escena principal es el menú (`scenes/menus/main_menu.tscn`).
+Todavía **no** están el modelo definitivo de Sebastián, los compañeros, la policía, los vehículos, las misiones ni el audio: llegan en las fases siguientes.
 
-Desde la terminal:
+## Ejecutar
+
+Requiere Godot **4.7** (versión estándar). Ver [DOCUMENTACION/INSTALACION.md](DOCUMENTACION/INSTALACION.md).
 
 ```bash
-godot --path . 
+godot --path .            # jugar
+godot -e --path .         # abrir el editor
 ```
-
-## Controles
-
-| Acción | Teclado | Mando |
-|---|---|---|
-| Mover | A / D o flechas | Cruceta o palanca izquierda |
-| Saltar (mantener = más alto) | ESPACIO, W, flecha arriba, Z | A |
-| Correr | SHIFT o X | X / RB |
-| Hablar con amigos | E, S o flecha abajo | Y / B |
-| Pausa | ESC o P | Start |
-
-En pantallas táctiles aparecen botones en pantalla automáticamente.
-
-## Reglas del juego
-
-- **Salud**: 3 corazones. Vidrios rotos, conos, perros y drones quitan un corazón.
-- **Vidas**: 5. Pierdes una vida si te quedas sin corazones, caes al vacío o el dron patrulla te alcanza. Reapareces en el último punto de control.
-- **Persecución**: la barra "Distancia a la patrulla" muestra qué tan cerca está. Acelera con el tiempo y es más rápida en cada nivel.
-- **Granizados**: coleccionables. Cada 25 en un nivel dan una vida extra. Algunos niveles exigen una cantidad.
-- **Drones vigía**: se desactivan saltando encima. Los **perros** no se pisan: hay que saltarlos.
-- **Meta**: se ve roja hasta cumplir los objetivos del nivel y verde cuando está abierta.
-- **Progreso**: se guarda al llegar a puntos de control y al completar niveles (`user://save.json`).
-
-## Niveles
-
-1. Calles nocturnas (tutorial e inicio de la persecución)
-2. Sector comercial (vitrinas, toldos y rutas alternativas; misión de granizados)
-3. El CAI (barreras intermitentes, drones y 3 pistas)
-4. El parque (encuentro con Buitrago; la persecución vuelve después)
-5. El barrio (escaleras, tiendas, encuentro con Diaz)
-6. El puente de la Novena (huecos largos, persecución exigente, rescate de Gordo)
-7. Encuentro final (los cuatro juntos hasta el mirador y final de la historia)
 
 ## Pruebas
 
-Validación estática (no requiere Godot):
-
 ```bash
-py tools/validate_project.py
+godot --headless --path . --fixed-fps 60 res://tests/test_runner.tscn
 ```
 
-Pruebas de integración dentro del motor (movimiento, salto, colisiones, daño, puntos de control, caída, persecución, misiones, amigos, guardado, transiciones y rendimiento):
-
-```bash
-godot --headless --path . res://tests/test_runner.tscn
-```
-
-Bot que recorre los 7 niveles con la física real para comprobar que se pueden completar:
-
-```bash
-godot --headless --path . --fixed-fps 60 res://tests/bot_runner.tscn
-```
-
-Godot 4.7.2 quedó descargado en `tools/godot/` (no se sube a Git); puedes usar `tools\godot\Godot_v4.7.2-stable_win64.exe` en lugar de `godot`.
-
-## Regenerar recursos
-
-```bash
-py tools/generate_art.py
-py tools/generate_audio.py
-py tools/build_levels.py
-```
-
-Los niveles se editan en `tools/build_levels.py` (la leyenda del mapa está al inicio del archivo) y se exportan a `data/levels/*.json`. Los diálogos están en `data/dialogue/dialogues.json` y los nombres de los personajes en `data/dialogue/characters.json`.
-
-## Publicación web
-
-Consulta [docs/PUBLICACION.md](docs/PUBLICACION.md). El juego **no** se ha publicado en ningún servicio.
+Detalle y resultados en [DOCUMENTACION/PRUEBAS.md](DOCUMENTACION/PRUEBAS.md).
 
 ## Documentación
 
-- [docs/ARQUITECTURA.md](docs/ARQUITECTURA.md): organización del código y cómo extender el juego.
-- [docs/ESTADO.md](docs/ESTADO.md): qué está terminado, qué se probó y qué falta.
-- [docs/RECURSOS.md](docs/RECURSOS.md): origen y licencia del arte y el audio.
+| Documento | Contenido |
+|---|---|
+| [AUDITORIA_INICIAL.md](DOCUMENTACION/AUDITORIA_INICIAL.md) | Auditoría del juego 2D y elección del motor |
+| [ARQUITECTURA.md](DOCUMENTACION/ARQUITECTURA.md) | Sistemas, carpetas, guardado, calidad gráfica, recursos |
+| [PLAN_DE_DESARROLLO.md](DOCUMENTACION/PLAN_DE_DESARROLLO.md) | Las 12 fases y la campaña |
+| [CONTROLES.md](DOCUMENTACION/CONTROLES.md) | Teclado, ratón, mando y reasignación |
+| [INSTALACION.md](DOCUMENTACION/INSTALACION.md) | Preparar el entorno |
+| [EXPORTACION_PC.md](DOCUMENTACION/EXPORTACION_PC.md) | Generar el `.exe` de Windows |
+| [EXPORTACION_WEB.md](DOCUMENTACION/EXPORTACION_WEB.md) | Versión web y GitHub Pages |
+| [PRUEBAS.md](DOCUMENTACION/PRUEBAS.md) | Pruebas y mediciones |
+| [CHANGELOG.md](CHANGELOG.md) | Cambios por versión |
+
+## Versión web
+
+- Juego 2D (versión estable): https://sebastianjaimesr.github.io/Escape-Bucaramanga/
+- Prototipo 3D: https://sebastianjaimesr.github.io/Escape-Bucaramanga/beta-3d/
