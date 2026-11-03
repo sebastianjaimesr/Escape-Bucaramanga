@@ -1,6 +1,6 @@
 # Plan de desarrollo — Escape de Bucaramanga 3D
 
-Estado: **propuesta de la Fase 1, pendiente de aprobación.**
+Estado: Fase 1 aprobada el 3 de noviembre de 2026. **Fase 2 terminada** (ver `PRUEBAS.md` y `CHANGELOG.md`).
 
 ## 1. Reglas del plan
 
@@ -13,8 +13,8 @@ Estado: **propuesta de la Fase 1, pendiente de aprobación.**
 
 | Fase | Entrega comprobable | Criterio para darla por terminada |
 |---|---|---|
-| **1. Auditoría y arquitectura** | `AUDITORIA_INICIAL.md`, `ARQUITECTURA.md`, este plan | Aprobación tuya |
-| **2. Prototipo 3D** | Proyecto 3D en la raíz, 2D en `clasico-2d/`, manzana de prueba, cámara y movimiento, exportación web y Windows | Ver sección 3 |
+| **1. Auditoría y arquitectura** ✅ | `AUDITORIA_INICIAL.md`, `ARQUITECTURA.md`, este plan | Aprobación tuya |
+| **2. Prototipo 3D** ✅ | Proyecto 3D en la raíz, 2D en `clasico-2d/`, manzana de prueba, cámara y movimiento, exportación web y Windows | Ver sección 3 |
 | **3. Protagonista** | Modelo de Sebastián (camiseta roja, jeans rotos, tenis blancos con rojo, mochila negra, pulsera) y las 14 animaciones pedidas con transiciones | Todas las animaciones se ven en juego; capturas en PC y web |
 | **4. Compañeros IA** | Tres amigos con máquina de estados, formación, navmesh, reagrupamiento, recuperación | Prueba: 10 minutos de recorrido automático sin atravesar edificios, sin atascarse más de 5 s y sin amontonarse |
 | **5. Primera zona de Bucaramanga** | Zona del centro alrededor del Parque García Rovira, con calles de OpenStreetMap, aceras, edificios modulares variados, semáforos, señales, farolas, vegetación, ciclo día/noche, lluvia | Recorrible a pie de un extremo al otro; capturas de día, de noche y con lluvia |

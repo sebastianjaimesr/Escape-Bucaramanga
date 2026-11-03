@@ -1,6 +1,6 @@
 # Arquitectura — Escape de Bucaramanga 3D
 
-Estado: **propuesta de la Fase 1, pendiente de aprobación.** Nada de lo descrito aquí está implementado todavía.
+Estado: aprobada el 3 de noviembre de 2026. Implementado hasta la Fase 2: `src/core` (EventBus, Settings, InputConfig, SceneLoader), `src/player`, `src/camera`, `src/physics`, `src/config` (perfiles de calidad), `src/ui` (menú, pausa, configuración, HUD básico, medidor, carga) y `src/world/prototype` (manzana de prueba). El resto está por construir.
 
 ## 1. Tecnología
 

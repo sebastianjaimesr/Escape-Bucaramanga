@@ -1,8 +1,8 @@
 # Godot 4
 .godot/
 /build/
-/android/
 *.tmp
+*.import.tmp
 
 # Herramientas locales
 /tools/godot/
