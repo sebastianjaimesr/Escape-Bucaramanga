@@ -33,6 +33,11 @@ func _check_player_contact() -> void:
 		var from_above := p.velocity.y > 20.0 and p.global_position.y < global_position.y + 2.0
 		if can_be_stomped and from_above:
 			p.bounce()
+			var points := GameState.register_stomp()
+			var label := "+%d" % points
+			if GameState.combo > 1:
+				label += "  x%d" % GameState.combo
+			Effects.floating_text(get_parent(), global_position + Vector2(-4, -22), label, Color(1, 0.85, 0.4))
 			defeat()
 			return
 		p.take_damage(damage, global_position)
@@ -42,7 +47,10 @@ func defeat() -> void:
 	defeated = true
 	AudioManager.play_sfx("stomp")
 	Effects.burst(get_parent(), global_position, Color(1, 0.8, 0.4), 14, 100.0)
-	Effects.floating_text(get_parent(), global_position + Vector2(0, -10), "¡Fuera!", Color(1, 0.9, 0.5))
+	Effects.hit_stop(get_tree(), 0.05)
+	var cam := get_viewport().get_camera_2d()
+	if cam is CameraController:
+		(cam as CameraController).shake(2.0, 0.12)
 	set_deferred("monitoring", false)
 	var tw := create_tween()
 	tw.tween_property(self, "scale", Vector2(1.3, 0.2), 0.12)

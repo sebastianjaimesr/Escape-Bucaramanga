@@ -13,7 +13,7 @@ Leyenda del mapa (una celda = 16x16 px):
   T  árbol            b  banca                 w  vitrina de tienda
   K  CAI              k  patrulla estacionada  t  caneca
   f  matera           !  letrero de ayuda (usa la lista "hints")
-  n  cono (daño)
+  n  cono (daño)       a  hormiga culona (secreto; se ubican solas, 3 por nivel)
 Restricciones de diseño (física del jugador): subir <= 3 celdas, hueco <= 4
 caminando y <= 6 corriendo.
 """
@@ -365,7 +365,8 @@ def level_7():
 
 
 LEVELS = [
-    dict(id="level_01", title="Nivel 1: Calles nocturnas", subtitle="Una confusión con la mochila negra",
+    dict(id="level_01", title="Nivel 1: Centro, Calle 35", subtitle="Una confusión con la mochila negra",
+         place="Centro de Bucaramanga",
          theme="calles", music="chase", rain=False, build=level_1,
          chase=dict(mode="delay", delay=6.0, speed=52.0, accel=0.35, max_speed=78.0),
          mission=[dict(type="reach_exit", text="Escapa de la persecución y llega a la meta")],
@@ -374,14 +375,16 @@ LEVELS = [
                 "Súbete a los carros para saltar más alto", "Mantén SHIFT para correr: los huecos grandes lo necesitan",
                 "Los vidrios rotos y los conos hacen daño", "A los policías no se les salta encima: ¡pásalos por arriba sin tocarlos!",
                 "Las plataformas móviles te llevan sobre los huecos"]),
-    dict(id="level_02", title="Nivel 2: Sector comercial", subtitle="Luces y vitrinas de Cabecera",
+    dict(id="level_02", title="Nivel 2: Cabecera", subtitle="Luces y vitrinas de la zona comercial",
+         place="Cabecera del Llano",
          theme="comercial", music="chase", rain=True, build=level_2,
          chase=dict(mode="delay", delay=4.0, speed=58.0, accel=0.4, max_speed=84.0),
          mission=[dict(type="collect", count=18, text="Recoge 18 granizados para invitar a tus amigos"),
                   dict(type="reach_exit", text="Llega a la meta")],
          intro="intro_level_02", outro=None, friend=None,
          hints=["Los toldos son rutas alternativas con más granizados", "Sigue la ruta alta para esquivar a los policías"]),
-    dict(id="level_03", title="Nivel 3: El CAI", subtitle="Aclarar el malentendido",
+    dict(id="level_03", title="Nivel 3: El CAI de San Pío", subtitle="Aclarar el malentendido",
+         place="Cabecera, junto al Parque San Pío",
          theme="cai", music="chase", rain=False, build=level_3,
          chase=dict(mode="delay", delay=5.0, speed=62.0, accel=0.45, max_speed=88.0),
          mission=[dict(type="pistas", count=3, text="Encuentra 3 pistas sobre el verdadero ladrón"),
@@ -389,7 +392,8 @@ LEVELS = [
          intro="intro_level_03", outro=None, friend=None,
          hints=["El CAI está cerrado: busca pistas para demostrar tu inocencia",
                 "Las barreras se abren y se cierran: espera tu momento. Salta sobre los drones para desactivarlos"]),
-    dict(id="level_04", title="Nivel 4: El parque", subtitle="Primer reencuentro",
+    dict(id="level_04", title="Nivel 4: Parque San Pío", subtitle="Primer reencuentro bajo los guayacanes",
+         place="Parque San Pío",
          theme="parque", music="park", rain=False, build=level_4,
          chase=dict(mode="after_friend", delay=1.5, speed=64.0, accel=0.45, max_speed=90.0),
          mission=[dict(type="friend", text="Encuentra a tu amigo en el parque"),
@@ -397,7 +401,8 @@ LEVELS = [
          intro="intro_level_04", outro=None,
          friend=dict(id="gorra", dialogue="friend_gorra"),
          hints=["Acércate a tu amigo y presiona E para hablar", "¡La patrulla volvió! Corre hacia la salida"]),
-    dict(id="level_05", title="Nivel 5: El barrio", subtitle="Escaleras, tiendas y vecinos",
+    dict(id="level_05", title="Nivel 5: Barrio García Rovira", subtitle="Escaleras, tiendas y el centro histórico",
+         place="Parque García Rovira y alrededores",
          theme="barrio", music="chase", rain=True, build=level_5,
          chase=dict(mode="delay", delay=5.0, speed=68.0, accel=0.5, max_speed=94.0),
          mission=[dict(type="friend", text="Encuentra a tu amigo en la tienda del barrio"),
@@ -406,7 +411,8 @@ LEVELS = [
          intro="intro_level_05", outro=None,
          friend=dict(id="rulos", dialogue="friend_rulos"),
          hints=["Habla con los amigos con E: se unen al grupo"]),
-    dict(id="level_06", title="Nivel 6: El puente de la Novena", subtitle="La persecución más exigente",
+    dict(id="level_06", title="Nivel 6: Viaducto de la Novena", subtitle="La persecución más exigente",
+         place="Puente de la Novena",
          theme="viaducto", music="viaduct", rain=False, build=level_6,
          chase=dict(mode="delay", delay=3.0, speed=78.0, accel=0.6, max_speed=104.0),
          mission=[dict(type="friend", text="Rescata a tu amigo atrapado en el puente de la Novena"),
@@ -414,13 +420,39 @@ LEVELS = [
          intro="intro_level_06", outro=None,
          friend=dict(id="gafas", dialogue="friend_gafas"),
          hints=["¡Corre (SHIFT) y salta! Los huecos del puente de la Novena son largos"]),
-    dict(id="level_07", title="Nivel 7: Encuentro final", subtitle="Todos juntos hasta el mirador",
+    dict(id="level_07", title="Nivel 7: Cerro del Santísimo", subtitle="Todos juntos hasta el mirador",
+         place="Cerro del Santísimo, Floridablanca",
          theme="final", music="finale", rain=False, build=level_7,
          chase=dict(mode="delay", delay=3.0, speed=74.0, accel=0.5, max_speed=98.0),
-         mission=[dict(type="reach_exit", text="Llega al mirador con tus amigos")],
+         mission=[dict(type="reach_exit", text="Llega al mirador del Santísimo con tus amigos")],
          intro="intro_level_07", outro="ending", friend=None,
-         hints=["Último esfuerzo: el mirador está al final de la calle"]),
+         hints=["Último esfuerzo: el mirador del Santísimo está en la cima"]),
 ]
+
+
+def place_hormigas(rows, count=3):
+    """Convierte en hormigas culonas los granizados más altos de cada tramo del nivel.
+    Los granizados ya están en sitios alcanzables, así que las hormigas también;
+    elegir los más altos premia explorar plataformas y rutas superiores."""
+    rows = [list(r) for r in rows]
+    w = len(rows[0])
+    start = int(w * 0.08)
+    span = (w - start) / count
+    chosen = []
+    for k in range(count):
+        x0 = int(start + span * k)
+        x1 = int(start + span * (k + 1))
+        best = None
+        for x in range(x0, x1):
+            for y in range(H):
+                if rows[y][x] == "o" and all(abs(x - c) >= 14 for c in chosen):
+                    key = (y, -x)  # más alto primero; si empata, el más lejano
+                    if best is None or key < best[0]:
+                        best = (key, x, y)
+        if best is not None:
+            rows[best[2]][best[1]] = "a"
+            chosen.append(best[1])
+    return ["".join(r) for r in rows]
 
 
 def validate(lid, rows):
@@ -445,7 +477,7 @@ def main():
     os.makedirs(out_dir, exist_ok=True)
     index = []
     for lv in LEVELS:
-        rows = lv["build"]()
+        rows = place_hormigas(lv["build"]())
         w = validate(lv["id"], rows)
         hints_needed = "".join(rows).count("!")
         assert hints_needed <= len(lv["hints"]), (lv["id"], hints_needed, len(lv["hints"]))
@@ -456,8 +488,14 @@ def main():
         data["map"] = rows
         with open(os.path.join(out_dir, lv["id"] + ".json"), "w", encoding="utf-8") as f:
             json.dump(data, f, ensure_ascii=False, indent=1)
-        index.append(dict(id=lv["id"], title=lv["title"], scene="res://scenes/levels/%s.tscn" % lv["id"]))
-        print(lv["id"], "ancho", w, "granizados", "".join(rows).count("o"), "pistas", "".join(rows).count("p"))
+        index.append(dict(id=lv["id"], title=lv["title"], subtitle=lv["subtitle"], place=lv["place"],
+                          theme=lv["theme"], scene="res://scenes/levels/%s.tscn" % lv["id"]))
+        flat = "".join(rows)
+        for m in lv["mission"]:
+            if m["type"] == "collect":
+                assert flat.count("o") >= m["count"], (lv["id"], "faltan granizados para la misión")
+        print(lv["id"], "ancho", w, "granizados", flat.count("o"), "hormigas", flat.count("a"),
+              "pistas", flat.count("p"))
     with open(os.path.join(out_dir, "levels.json"), "w", encoding="utf-8") as f:
         json.dump(dict(levels=index), f, ensure_ascii=False, indent=1)
 

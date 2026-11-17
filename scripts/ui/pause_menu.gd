@@ -6,6 +6,7 @@ var is_open := false
 var _root: Control
 var _menu: VBoxContainer
 var _options: OptionsPanel
+var _status: Label
 
 
 func _ready() -> void:
@@ -26,12 +27,17 @@ func _ready() -> void:
 	_menu.add_theme_constant_override("separation", 12)
 	center.add_child(_menu)
 	_menu.add_child(UITheme.title_label("Pausa", 44, Color(1, 0.85, 0.5)))
+	_status = Label.new()
+	_status.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	_status.add_theme_font_size_override("font_size", 16)
+	_status.add_theme_color_override("font_color", Color(0.8, 0.85, 1.0))
+	_menu.add_child(_status)
 	_menu.add_child(UITheme.button("Continuar", close))
 	_menu.add_child(UITheme.button("Reiniciar nivel", _restart))
 	_menu.add_child(UITheme.button("Opciones", _open_options))
 	_menu.add_child(UITheme.button("Menú principal", _to_menu))
 	var help := Label.new()
-	help.text = "Mover: A/D o flechas · Saltar: ESPACIO/W · Correr: SHIFT · Hablar: E"
+	help.text = "Mover: A/D o flechas · Saltar: ESPACIO/W · Correr: SHIFT · Hablar: E · Silenciar: M"
 	help.add_theme_font_size_override("font_size", 14)
 	help.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	_menu.add_child(help)
@@ -58,9 +64,20 @@ func _can_open() -> bool:
 
 func open() -> void:
 	is_open = true
+	_status.text = _status_text()
 	_root.visible = true
 	get_tree().paused = true
-	(_menu.get_child(1) as Button).grab_focus()
+	(_menu.get_child(2) as Button).grab_focus()
+
+
+func _status_text() -> String:
+	var level := get_parent() as Level
+	var lines := PackedStringArray()
+	if level != null and level.mission != null:
+		lines.append("Objetivo: " + level.mission.current_text())
+		lines.append("Puntaje %d   ·   Hormigas culonas %d/%d   ·   Vidas %d" % [GameState.level_score,
+			GameState.level_hormigas, level.total_hormigas, GameState.lives])
+	return "\n".join(lines)
 
 
 func close() -> void:
@@ -81,7 +98,7 @@ func _open_options() -> void:
 	_options.closed.connect(func() -> void:
 		_options = null
 		_menu.visible = true
-		(_menu.get_child(3) as Button).grab_focus())
+		(_menu.get_child(4) as Button).grab_focus())
 
 
 func _to_menu() -> void:

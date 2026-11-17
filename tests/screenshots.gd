@@ -18,9 +18,25 @@ func _ready() -> void:
 	get_tree().current_scene = dummy
 	SceneTransition.change_scene("res://scenes/menus/main_menu.tscn")
 	await SceneTransition.transition_finished
-	await _wait(1.0)
-	_shot("00_menu")
+	await _wait(2.4)
+	_shot("00a_titulo")
+	var ev := InputEventKey.new()
+	ev.pressed = true
+	ev.keycode = KEY_ENTER
+	Input.parse_input_event(ev)
+	await _wait(0.8)
+	_shot("00b_menu")
+	var menu := get_tree().current_scene
+	menu.call("_level_select")
+	await _wait(0.3)
+	_shot("00c_seleccion")
+	menu.call("_close_sub")
+	menu.call("_how_to_play")
+	await _wait(0.3)
+	_shot("00d_como_jugar")
+	menu.call("_close_sub")
 	for i in GameState.level_count():
+		TouchControls.force_visible = i == 0  # el nivel 1 se captura con controles táctiles
 		GameState.start_level(i)
 		await SceneTransition.transition_finished
 		await _wait(0.6)
@@ -32,11 +48,23 @@ func _ready() -> void:
 			level.chase._x = level.player.global_position.x - 180.0
 			level.camera.snap_to_target()
 		await _wait(1.2)
+		if level:
+			level.hud._toast_time = 0.0
+			level.hud._toast.modulate.a = 0.0
 		_shot("%02d_%s" % [i + 1, GameState.levels[i]["id"]])
-	GameState.last_result = {"title": "Nivel 1: Calles nocturnas", "granizados": 21, "total_granizados": 30, "time": 95.0, "lives": 4}
+		if i == 2 and level:
+			level.pause_menu.open()
+			await _wait(0.2)
+			_shot("%02d_pausa" % (i + 1))
+			level.pause_menu.close()
+	GameState.last_result = {"title": "Nivel 4: Parque San Pío", "granizados": 18, "total_granizados": 20,
+		"hormigas": 3, "total_hormigas": 3, "time": 41.0, "lives": 4, "level_index": 3, "base_score": 1430,
+		"bonus_complete": 1000, "bonus_time": 900, "bonus_no_deaths": 1500, "score": 4830, "stars": 3,
+		"new_record": true}
 	SceneTransition.change_scene("res://scenes/menus/victory.tscn")
 	await SceneTransition.transition_finished
 	await _wait(0.8)
+	await _wait(2.6)
 	_shot("08_victoria")
 	SceneTransition.change_scene("res://scenes/menus/ending.tscn")
 	await SceneTransition.transition_finished

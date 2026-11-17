@@ -7,9 +7,11 @@ func enter(_previous: StringName, msg: Dictionary) -> void:
 	player.play_anim(&"jump")
 	_can_cut = not msg.get("bounce", false)
 	if msg.get("bounce", false):
+		player.squash(Vector2(0.8, 1.2), 0.2)
 		return  # la velocidad ya la fijó Player.bounce()
 	player.consume_jump()
 	player.velocity.y = Player.JUMP_VELOCITY
+	player.squash(Vector2(0.78, 1.22), 0.22)
 	AudioManager.play_sfx("jump", 0.05)
 	Effects.dust(player.get_parent(), player.global_position)
 

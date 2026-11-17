@@ -48,5 +48,7 @@ func _physics_process(delta: float) -> void:
 
 
 func shake(strength: float = 3.0, duration: float = 0.25) -> void:
+	if not bool(GameState.settings.get("screen_shake", true)):
+		return
 	_shake_strength = strength
 	_shake_time = duration

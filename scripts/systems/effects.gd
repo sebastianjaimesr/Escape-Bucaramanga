@@ -35,6 +35,15 @@ static func burst(parent: Node, pos: Vector2, color: Color, amount: int = 12, sp
 	p.finished.connect(p.queue_free)
 
 
+## Congela el juego un instante para dar peso a un impacto ("hit stop").
+static func hit_stop(tree: SceneTree, duration: float = 0.05) -> void:
+	if tree == null or Engine.time_scale < 1.0:
+		return
+	Engine.time_scale = 0.05
+	await tree.create_timer(duration, true, false, true).timeout
+	Engine.time_scale = 1.0
+
+
 static func dust(parent: Node, pos: Vector2) -> void:
 	burst(parent, pos, Color(0.8, 0.78, 0.85, 0.8), 6, 40.0, 0.35, 60.0)
 

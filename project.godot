@@ -12,7 +12,7 @@ config_version=5
 
 config/name="Escape de Bucaramanga"
 config/description="Plataformas 2D de acción nocturna inspirado en Bucaramanga."
-config/version="1.0.0"
+config/version="1.1.0"
 run/main_scene="res://scenes/menus/main_menu.tscn"
 config/features=PackedStringArray("4.4", "GL Compatibility")
 boot_splash/bg_color=Color(0.06, 0.04, 0.12, 1)

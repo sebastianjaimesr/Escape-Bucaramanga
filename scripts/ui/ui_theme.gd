@@ -70,6 +70,29 @@ static func button(text: String, callback: Callable) -> Button:
 	return b
 
 
+## Fila de 3 estrellas (llenas según `count`) para menús y resultados.
+static func stars_row(count: int, size: int = 24) -> HBoxContainer:
+	var row := HBoxContainer.new()
+	row.add_theme_constant_override("separation", 2)
+	row.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	row.size_flags_vertical = Control.SIZE_SHRINK_CENTER
+	for i in 3:
+		row.add_child(star_icon(i < count, size))
+	return row
+
+
+static func star_icon(filled: bool, size: int = 24) -> TextureRect:
+	var t := TextureRect.new()
+	t.texture = SpriteFactory.atlas("res://assets/ui/star.png", Rect2(0 if filled else 32, 0, 32, 32))
+	t.custom_minimum_size = Vector2(size, size)
+	t.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
+	t.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
+	t.texture_filter = CanvasItem.TEXTURE_FILTER_NEAREST
+	t.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	t.pivot_offset = Vector2(size, size) * 0.5
+	return t
+
+
 static func title_label(text: String, size: int = 40, color: Color = TEXT) -> Label:
 	var l := Label.new()
 	l.text = text

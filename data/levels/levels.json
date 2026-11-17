@@ -2,37 +2,58 @@
  "levels": [
   {
    "id": "level_01",
-   "title": "Nivel 1: Calles nocturnas",
+   "title": "Nivel 1: Centro, Calle 35",
+   "subtitle": "Una confusión con la mochila negra",
+   "place": "Centro de Bucaramanga",
+   "theme": "calles",
    "scene": "res://scenes/levels/level_01.tscn"
   },
   {
    "id": "level_02",
-   "title": "Nivel 2: Sector comercial",
+   "title": "Nivel 2: Cabecera",
+   "subtitle": "Luces y vitrinas de la zona comercial",
+   "place": "Cabecera del Llano",
+   "theme": "comercial",
    "scene": "res://scenes/levels/level_02.tscn"
   },
   {
    "id": "level_03",
-   "title": "Nivel 3: El CAI",
+   "title": "Nivel 3: El CAI de San Pío",
+   "subtitle": "Aclarar el malentendido",
+   "place": "Cabecera, junto al Parque San Pío",
+   "theme": "cai",
    "scene": "res://scenes/levels/level_03.tscn"
   },
   {
    "id": "level_04",
-   "title": "Nivel 4: El parque",
+   "title": "Nivel 4: Parque San Pío",
+   "subtitle": "Primer reencuentro bajo los guayacanes",
+   "place": "Parque San Pío",
+   "theme": "parque",
    "scene": "res://scenes/levels/level_04.tscn"
   },
   {
    "id": "level_05",
-   "title": "Nivel 5: El barrio",
+   "title": "Nivel 5: Barrio García Rovira",
+   "subtitle": "Escaleras, tiendas y el centro histórico",
+   "place": "Parque García Rovira y alrededores",
+   "theme": "barrio",
    "scene": "res://scenes/levels/level_05.tscn"
   },
   {
    "id": "level_06",
-   "title": "Nivel 6: El puente de la Novena",
+   "title": "Nivel 6: Viaducto de la Novena",
+   "subtitle": "La persecución más exigente",
+   "place": "Puente de la Novena",
+   "theme": "viaducto",
    "scene": "res://scenes/levels/level_06.tscn"
   },
   {
    "id": "level_07",
-   "title": "Nivel 7: Encuentro final",
+   "title": "Nivel 7: Cerro del Santísimo",
+   "subtitle": "Todos juntos hasta el mirador",
+   "place": "Cerro del Santísimo, Floridablanca",
+   "theme": "final",
    "scene": "res://scenes/levels/level_07.tscn"
   }
  ]

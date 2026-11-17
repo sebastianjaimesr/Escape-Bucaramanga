@@ -64,3 +64,13 @@ Constantes de diseño (en `scripts/player/player.gd`): caminar 112 px/s, correr 
 ## Cambiar personajes por arte definitivo
 
 Los spritesheets están en `assets/characters/` con filas fijas de 32×32: idle (4), walk (6), run (6), jump (2), fall (2), hurt (2), interact (4). Reemplaza el PNG manteniendo esa cuadrícula y no hace falta tocar código. Los nombres visibles están en `data/dialogue/characters.json`.
+
+## Versión 1.1: sistemas añadidos
+
+- **Puntaje y estrellas** (`GameState`): `POINTS`, `add_score()`, `register_stomp()` (combo que se reinicia con `Player.landed`), `compute_stars()` y récords `best_scores`, `best_stars` y `best_hormigas`. `Level.build_stats()` calcula los bonos al terminar.
+- **Hormigas culonas**: símbolo `a` en los mapas, coleccionable `kind = "hormiga"`. `tools/build_levels.py → place_hormigas()` las ubica sobre los granizados más altos de cada tercio del nivel.
+- **Fondos con identidad** (`ParallaxBuilder`): capa `landmark_<tema>.png` con profundidad configurable (`LANDMARKS`). La fórmula medida para Parallax2D con zoom 2 es `x_pantalla = offset + x_imagen − s·centro_cámara − (1 − 2s)·240`, y `offset_for()` la usa para que cada monumento aparezca donde se diseñó.
+- **Ambiente** (`AmbientBuilder`): partículas y tweens por tema más la viñeta (shader `canvas_item` sin leer la pantalla, compatible con WebGL 2).
+- **Audio** (`AudioManager`): fundido cruzado entre pistas, `set_muted()` y `toggle_mute()` (acción `mute`, tecla M).
+- **Interfaz**: `UITheme.stars_row()` y `star_icon()`; el menú principal usa `_title_passed` (estático) para mostrar la pantalla de título solo una vez por sesión.
+- **Web**: `web/shell.html` es la plantilla de la página; `tools/make_web_index.py` la rellena cuando solo se actualiza `index.pck`.

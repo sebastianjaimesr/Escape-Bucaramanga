@@ -1,6 +1,7 @@
 class_name HUD
 extends CanvasLayer
-## HUD: salud, vidas, granizados, pistas, amigos, objetivo y distancia de la patrulla.
+## HUD: salud, vidas, granizados, pistas, hormigas culonas, amigos, objetivo,
+## puntaje con combo y distancia de la patrulla.
 
 var _hearts: Array[TextureRect] = []
 var _lives_label: Label
@@ -20,6 +21,14 @@ var _toast_time := 0.0
 var _heart_full: AtlasTexture
 var _heart_empty: AtlasTexture
 var _fill_styles: Dictionary = {}
+var _score_label: Label
+var _combo_label: Label
+var _mute_label: Label
+var _hormigas_box: HBoxContainer
+var _hormigas_label: Label
+var _hormigas_total := 3
+var _shown_score := 0.0
+var _target_score := 0
 
 
 func _ready() -> void:
@@ -33,52 +42,67 @@ func _ready() -> void:
 	root.theme = UITheme.get_theme()
 	add_child(root)
 
-	# Esquina superior izquierda: salud, vidas y contadores
+	# Esquina superior izquierda: salud, vidas y contadores sobre un panel translúcido
+	var left_panel := PanelContainer.new()
+	left_panel.position = Vector2(10, 8)
+	left_panel.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	left_panel.add_theme_stylebox_override("panel", _plate())
+	root.add_child(left_panel)
 	var left := VBoxContainer.new()
-	left.position = Vector2(16, 12)
-	left.add_theme_constant_override("separation", 4)
-	root.add_child(left)
+	left.add_theme_constant_override("separation", 2)
+	left_panel.add_child(left)
 	var hearts_row := HBoxContainer.new()
 	hearts_row.add_theme_constant_override("separation", 2)
 	left.add_child(hearts_row)
 	for i in GameState.MAX_HEALTH:
 		var tr := TextureRect.new()
 		tr.texture = _heart_full
-		tr.custom_minimum_size = Vector2(32, 32)
+		tr.custom_minimum_size = Vector2(28, 28)
 		tr.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
 		tr.texture_filter = CanvasItem.TEXTURE_FILTER_NEAREST
 		hearts_row.add_child(tr)
 		_hearts.append(tr)
 	var counters := HBoxContainer.new()
-	counters.add_theme_constant_override("separation", 14)
+	counters.add_theme_constant_override("separation", 8)
 	left.add_child(counters)
 	var life_icon := TextureRect.new()
 	life_icon.texture = load("res://assets/ui/life_icon.png")
-	life_icon.custom_minimum_size = Vector2(28, 28)
+	life_icon.custom_minimum_size = Vector2(22, 22)
 	life_icon.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
 	life_icon.texture_filter = CanvasItem.TEXTURE_FILTER_NEAREST
 	counters.add_child(life_icon)
-	_lives_label = _label("x5", 20)
+	_lives_label = _label("x5", 18)
 	counters.add_child(_lives_label)
 	var boca_icon := TextureRect.new()
 	boca_icon.texture = SpriteFactory.atlas("res://assets/sprites/granizado.png", Rect2(0, 0, 16, 16))
-	boca_icon.custom_minimum_size = Vector2(28, 28)
+	boca_icon.custom_minimum_size = Vector2(22, 22)
 	boca_icon.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
 	boca_icon.texture_filter = CanvasItem.TEXTURE_FILTER_NEAREST
 	counters.add_child(boca_icon)
-	_boca_label = _label("0", 20)
+	_boca_label = _label("0", 18)
 	counters.add_child(_boca_label)
 	_pistas_box = HBoxContainer.new()
 	counters.add_child(_pistas_box)
 	var pista_icon := TextureRect.new()
 	pista_icon.texture = SpriteFactory.atlas("res://assets/sprites/pista.png", Rect2(0, 0, 16, 16))
-	pista_icon.custom_minimum_size = Vector2(28, 28)
+	pista_icon.custom_minimum_size = Vector2(22, 22)
 	pista_icon.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
 	pista_icon.texture_filter = CanvasItem.TEXTURE_FILTER_NEAREST
 	_pistas_box.add_child(pista_icon)
-	_pistas_label = _label("0", 20)
+	_pistas_label = _label("0", 18)
 	_pistas_box.add_child(_pistas_label)
 	_pistas_box.visible = false
+	_hormigas_box = HBoxContainer.new()
+	counters.add_child(_hormigas_box)
+	var hormiga_icon := TextureRect.new()
+	hormiga_icon.texture = load("res://assets/ui/hormiga_icon.png")
+	hormiga_icon.custom_minimum_size = Vector2(22, 22)
+	hormiga_icon.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
+	hormiga_icon.texture_filter = CanvasItem.TEXTURE_FILTER_NEAREST
+	_hormigas_box.add_child(hormiga_icon)
+	_hormigas_label = _label("0/3", 18)
+	_hormigas_label.add_theme_color_override("font_color", Color(1, 0.78, 0.5))
+	_hormigas_box.add_child(_hormigas_label)
 	_friends_label = _label("", 16)
 	_friends_label.add_theme_color_override("font_color", Color(1, 0.88, 0.5))
 	left.add_child(_friends_label)
@@ -88,8 +112,8 @@ func _ready() -> void:
 	top.set_anchors_preset(Control.PRESET_CENTER_TOP)
 	top.anchor_left = 0.5
 	top.anchor_right = 0.5
-	top.offset_left = -260
-	top.offset_right = 260
+	top.offset_left = -245
+	top.offset_right = 245
 	top.offset_top = 10
 	top.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	root.add_child(top)
@@ -97,19 +121,43 @@ func _ready() -> void:
 	_level_title.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	_level_title.add_theme_color_override("font_color", Color(0.75, 0.8, 1.0))
 	top.add_child(_level_title)
-	_objective = _label("", 20)
+	_objective = _label("", 18)
 	_objective.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	_objective.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	top.add_child(_objective)
 
-	# Esquina superior derecha: distancia a la patrulla
+	# Esquina superior derecha: puntaje, combo y distancia a la patrulla
+	var right := VBoxContainer.new()
+	right.anchor_left = 1.0
+	right.anchor_right = 1.0
+	right.offset_left = -236
+	right.offset_right = -12
+	right.offset_top = 8
+	right.add_theme_constant_override("separation", 2)
+	right.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	root.add_child(right)
+	var score_panel := PanelContainer.new()
+	score_panel.add_theme_stylebox_override("panel", _plate())
+	score_panel.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	right.add_child(score_panel)
+	var score_row := HBoxContainer.new()
+	score_row.alignment = BoxContainer.ALIGNMENT_END
+	score_panel.add_child(score_row)
+	var score_caption := _label("PUNTAJE", 14)
+	score_caption.add_theme_color_override("font_color", Color(0.7, 0.75, 1.0))
+	score_caption.size_flags_vertical = Control.SIZE_SHRINK_CENTER
+	score_row.add_child(score_caption)
+	_score_label = _label("000000", 26)
+	_score_label.add_theme_color_override("font_color", Color(1, 0.92, 0.6))
+	_score_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_RIGHT
+	_score_label.custom_minimum_size = Vector2(110, 0)
+	score_row.add_child(_score_label)
+	_combo_label = _label("", 18)
+	_combo_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_RIGHT
+	_combo_label.add_theme_color_override("font_color", Color(1, 0.55, 0.35))
+	right.add_child(_combo_label)
 	_chase_box = VBoxContainer.new()
-	_chase_box.anchor_left = 1.0
-	_chase_box.anchor_right = 1.0
-	_chase_box.offset_left = -220
-	_chase_box.offset_right = -16
-	_chase_box.offset_top = 14
-	root.add_child(_chase_box)
+	right.add_child(_chase_box)
 	var chase_label := _label("Distancia a la patrulla", 15)
 	chase_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_RIGHT
 	_chase_box.add_child(chase_label)
@@ -127,12 +175,19 @@ func _ready() -> void:
 	_chase_box.add_child(_chase_bar)
 	_set_bar_color(Color(0.3, 1.0, 0.6))
 	_chase_box.visible = false
+	_mute_label = _label("Sonido silenciado (M)", 14)
+	_mute_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_RIGHT
+	_mute_label.add_theme_color_override("font_color", Color(0.8, 0.8, 0.9))
+	right.add_child(_mute_label)
+	_mute_label.visible = AudioManager.is_muted()
+	AudioManager.mute_changed.connect(func(m: bool) -> void: _mute_label.visible = m)
 
 	# Mensajes
 	_hint = _label("", 20)
 	_hint.anchor_left = 0.1
 	_hint.anchor_right = 0.9
-	_hint.anchor_top = 0.86
+	# En pantallas táctiles los botones ocupan la franja inferior: el texto sube.
+	_hint.anchor_top = 0.62 if DisplayServer.is_touchscreen_available() else 0.86
 	_hint.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	_hint.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	_hint.add_theme_color_override("font_color", Color(0.75, 0.95, 1.0))
@@ -157,7 +212,23 @@ func _ready() -> void:
 	GameState.granizados_changed.connect(_on_granizados_changed)
 	GameState.pistas_changed.connect(_on_pistas_changed)
 	GameState.friends_changed.connect(_on_friends_changed)
+	GameState.score_changed.connect(_on_score_changed)
+	GameState.hormigas_changed.connect(_on_hormigas_changed)
+	GameState.combo_changed.connect(_on_combo_changed)
 	refresh_all()
+
+
+func _plate() -> StyleBoxFlat:
+	var sb := StyleBoxFlat.new()
+	sb.bg_color = Color(0.04, 0.03, 0.1, 0.55)
+	sb.border_color = Color(0.4, 0.45, 0.9, 0.35)
+	sb.set_border_width_all(1)
+	sb.set_corner_radius_all(6)
+	sb.content_margin_left = 8
+	sb.content_margin_right = 8
+	sb.content_margin_top = 4
+	sb.content_margin_bottom = 4
+	return sb
 
 
 func _label(text: String, size: int) -> Label:
@@ -183,6 +254,10 @@ func refresh_all() -> void:
 	_on_granizados_changed(GameState.level_granizados)
 	_on_pistas_changed(GameState.level_pistas)
 	_on_friends_changed(GameState.friends)
+	_on_hormigas_changed(GameState.level_hormigas)
+	_target_score = GameState.level_score
+	_shown_score = float(_target_score)
+	_score_label.text = "%06d" % _target_score
 
 
 func set_level_title(text: String) -> void:
@@ -191,6 +266,12 @@ func set_level_title(text: String) -> void:
 
 func set_objective(text: String) -> void:
 	_objective.text = text
+
+
+func set_hormigas_total(total: int) -> void:
+	_hormigas_total = total
+	_hormigas_box.visible = total > 0
+	_on_hormigas_changed(GameState.level_hormigas)
 
 
 func show_pistas(value: bool) -> void:
@@ -212,8 +293,27 @@ func set_chase_distance(distance: float, max_distance: float) -> void:
 		_set_bar_color(Color(0.3, 1.0, 0.6))
 
 
+## En pantallas táctiles las ayudas nombran los botones en vez de las teclas.
+const TOUCH_WORDS := [
+	["con A/D o las flechas", "con los botones de dirección"],
+	["con ESPACIO, W o flecha arriba", "con el botón de salto"],
+	["Mantén SHIFT para correr", "Mantén el botón de correr"],
+	["¡Corre (SHIFT) y salta!", "¡Corre y salta!"],
+	["presiona E para hablar", "toca el botón E para hablar"],
+	["con E:", "con el botón E:"],
+]
+
+
+static func touch_text(text: String) -> String:
+	if not DisplayServer.is_touchscreen_available():
+		return text
+	for pair: Array in TOUCH_WORDS:
+		text = text.replace(pair[0], pair[1])
+	return text
+
+
 func show_hint(text: String) -> void:
-	_hint.text = text
+	_hint.text = touch_text(text)
 	_hint_time = 5.0
 
 
@@ -229,6 +329,9 @@ func show_toast(text: String, duration: float = 2.5, color: Color = Color(1, 0.9
 
 
 func _process(delta: float) -> void:
+	if int(_shown_score) != _target_score:
+		_shown_score = move_toward(_shown_score, _target_score, maxf(60.0, absf(_target_score - _shown_score) * 6.0) * delta)
+		_score_label.text = "%06d" % int(_shown_score)
 	if _hint_time > 0.0:
 		_hint_time -= delta
 		_hint.modulate.a = clampf(_hint_time, 0.0, 1.0)
@@ -241,6 +344,23 @@ func _on_health_changed(health: int, max_health: int) -> void:
 	for i in _hearts.size():
 		_hearts[i].texture = _heart_full if i < health else _heart_empty
 		_hearts[i].visible = i < max_health
+
+
+func _on_score_changed(score: int, delta_points: int) -> void:
+	_target_score = score
+	if delta_points >= 100:
+		var tw := _score_label.create_tween()
+		_score_label.pivot_offset = _score_label.size * Vector2(1.0, 0.5)
+		tw.tween_property(_score_label, "scale", Vector2(1.25, 1.25), 0.08)
+		tw.tween_property(_score_label, "scale", Vector2.ONE, 0.18)
+
+
+func _on_combo_changed(combo: int) -> void:
+	_combo_label.text = "COMBO x%d" % combo if combo > 1 else ""
+
+
+func _on_hormigas_changed(count: int) -> void:
+	_hormigas_label.text = "%d/%d" % [count, _hormigas_total]
 
 
 func _on_lives_changed(lives: int) -> void:

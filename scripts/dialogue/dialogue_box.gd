@@ -67,7 +67,8 @@ func _ready() -> void:
 	_text.add_theme_font_size_override("font_size", 20)
 	vbox.add_child(_text)
 	_hint = Label.new()
-	_hint.text = "ESPACIO / E / clic para continuar"
+	_hint.text = "Toca para continuar" if DisplayServer.is_touchscreen_available() \
+		else "ESPACIO / E / clic para continuar"
 	_hint.horizontal_alignment = HORIZONTAL_ALIGNMENT_RIGHT
 	_hint.add_theme_font_size_override("font_size", 13)
 	_hint.add_theme_color_override("font_color", Color(0.7, 0.7, 0.85))

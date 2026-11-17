@@ -14,7 +14,7 @@ const GROUND_Y := 272.0
 
 
 func _ready() -> void:
-	ParallaxBuilder.build(self, theme_name, scroll_speed if running else 0.0)
+	var bg := ParallaxBuilder.build(self, theme_name, scroll_speed if running else 0.0)
 	var night := CanvasModulate.new()
 	night.color = Color(0.72, 0.68, 0.9)
 	add_child(night)
@@ -23,6 +23,7 @@ func _ready() -> void:
 	cam.position = Vector2(240, 160)
 	add_child(cam)
 	cam.make_current()
+	AmbientBuilder.build(self, theme_name, cam, bg, false)
 	_build_ground()
 	var x := start_x
 	for id in characters:

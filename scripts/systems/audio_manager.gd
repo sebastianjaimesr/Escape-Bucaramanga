@@ -1,11 +1,18 @@
 extends Node
 ## Música y efectos. Crea los buses "Music" y "SFX" y un grupo de reproductores.
+## La música cambia con un fundido cruzado y la tecla M silencia todo el juego.
 
 const MUSIC_DIR := "res://assets/audio/music/"
 const SFX_DIR := "res://assets/audio/sfx/"
 const SFX_VOICES := 10
+const MUSIC_DB := -4.0
+const FADE_TIME := 0.8
+
+signal mute_changed(muted: bool)
 
 var _music: AudioStreamPlayer
+var _music_old: AudioStreamPlayer
+var _fade_tween: Tween
 var _current_music := ""
 var _voices: Array[AudioStreamPlayer] = []
 var _next_voice := 0
@@ -20,6 +27,9 @@ func _ready() -> void:
 	_music.bus = "Music"
 	_music.finished.connect(_on_music_finished)
 	add_child(_music)
+	_music_old = AudioStreamPlayer.new()
+	_music_old.bus = "Music"
+	add_child(_music_old)
 	for i in SFX_VOICES:
 		var p := AudioStreamPlayer.new()
 		p.bus = "SFX"
@@ -54,6 +64,27 @@ func _load(path: String) -> AudioStream:
 	return stream
 
 
+func _unhandled_input(event: InputEvent) -> void:
+	if event.is_action_pressed("mute") and not event.is_echo():
+		toggle_mute()
+
+
+func is_muted() -> bool:
+	return AudioServer.is_bus_mute(0)
+
+
+func set_muted(value: bool) -> void:
+	AudioServer.set_bus_mute(0, value)
+	mute_changed.emit(value)
+
+
+func toggle_mute() -> void:
+	var value := not is_muted()
+	set_muted(value)
+	GameState.settings["muted"] = value
+	SaveSystem.save_game()
+
+
 func play_music(track: String) -> void:
 	if track == _current_music and _music.playing:
 		return
@@ -61,14 +92,29 @@ func play_music(track: String) -> void:
 	var stream := _load(MUSIC_DIR + track + ".wav")
 	if stream == null:
 		return
+	if _fade_tween:
+		_fade_tween.kill()
+	# Fundido cruzado: la pista anterior baja mientras la nueva sube.
+	if _music.playing:
+		_music_old.stream = _music.stream
+		_music_old.volume_db = _music.volume_db
+		_music_old.play(_music.get_playback_position())
 	_music.stream = stream
-	_music.volume_db = -4.0
+	_music.volume_db = -40.0 if _music_old.playing else MUSIC_DB
 	_music.play()
+	_fade_tween = create_tween().set_parallel(true)
+	_fade_tween.tween_property(_music, "volume_db", MUSIC_DB, FADE_TIME)
+	if _music_old.playing:
+		_fade_tween.tween_property(_music_old, "volume_db", -40.0, FADE_TIME)
+		_fade_tween.chain().tween_callback(_music_old.stop)
 
 
 func stop_music() -> void:
 	_current_music = ""
+	if _fade_tween:
+		_fade_tween.kill()
 	_music.stop()
+	_music_old.stop()
 
 
 func _on_music_finished() -> void:

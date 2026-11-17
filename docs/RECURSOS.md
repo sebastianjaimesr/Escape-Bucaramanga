@@ -9,8 +9,13 @@ Todo el arte y el audio del juego fue **generado de forma procedural** por los s
 | Tileset (`assets/tilesets/tiles.png`) | `tools/generate_art.py` | 7 temáticas × 4 tiles (superficie, relleno, plataforma, caja) |
 | Fondos (`assets/backgrounds/`) | `tools/generate_art.py` | cielo, montañas con luces de casas, ciudad lejana y 7 capas cercanas; se repiten horizontalmente |
 | Interfaz (`assets/ui/`) | `tools/generate_art.py` | logotipo con fuente pixel propia, corazones, botones táctiles |
+| Lugares de Bucaramanga (`assets/backgrounds/landmark_*.png`, `clouds.png`, `haze.png`) | `tools/generate_landmarks.py` | Centro (casas republicanas con balcones), torres de Cabecera, cancha de San Pío, guayacanes del Parque San Pío, Iglesia de San Laureano y Capilla de los Dolores (García Rovira), meseta vista desde el Viaducto y Cerro del Santísimo con teleférico. Interpretaciones artísticas, no reproducciones exactas |
+| Hormiga culona, cabina del teleférico, luciérnaga, luces de carros, Santísimo lejano, estrellas (`assets/sprites/`, `assets/ui/`) | `tools/generate_landmarks.py` | añadidos en la versión 1.1 |
 | Música (`assets/audio/music/`) | `tools/generate_audio.py` | 5 pistas chiptune: menu, chase, park, viaduct, finale |
 | Efectos (`assets/audio/sfx/`) | `tools/generate_audio.py` | salto, aterrizaje, recoger, daño, sirena ficticia, victoria, derrota, etc. |
+| Efectos v1.1 (`hormiga`, `star`, `tally`, `start`) | `tools/generate_audio_extra.py` | hormiga culona, estrellas, conteo de puntaje y pantalla de título |
+
+Los generadores de la versión 1.1 son **aditivos**: no vuelven a escribir los recursos de `generate_art.py` ni de `generate_audio.py`.
 
 ## Fotografías de referencia
 

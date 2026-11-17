@@ -20,6 +20,10 @@ const COYOTE_TIME := 0.1
 const JUMP_BUFFER_TIME := 0.12
 const INVULNERABLE_TIME := 1.4
 const STOMP_BOUNCE := -260.0
+## Ayudas de sensación de control
+const APEX_THRESHOLD := 40.0   ## |velocidad.y| bajo la que se considera la cima del salto
+const APEX_GRAVITY_MULT := 0.6 ## gravedad reducida en la cima si se mantiene saltar
+const CORNER_CORRECTION := 4   ## px que se corre el jugador para no chocar con una esquina del techo
 
 @export var sheet_path := "res://assets/characters/protagonist.png"
 
@@ -37,6 +41,7 @@ var sprite: AnimatedSprite2D
 var state_machine: PlayerStateMachine
 var _was_on_floor := true
 var _interact_bubble: Label
+var _squash_tween: Tween
 
 
 func _ready() -> void:
@@ -55,11 +60,12 @@ func _ready() -> void:
 	add_child(shape)
 	sprite = AnimatedSprite2D.new()
 	sprite.sprite_frames = SpriteFactory.character_frames(sheet_path)
-	sprite.position = Vector2(0, -16)
+	# El origen del sprite queda en los pies para que el estiramiento se apoye en el suelo.
+	sprite.offset = Vector2(0, -16)
 	add_child(sprite)
 	sprite.play(&"idle")
 	_interact_bubble = Label.new()
-	_interact_bubble.text = "E"
+	_interact_bubble.text = "!" if DisplayServer.is_touchscreen_available() else "E"
 	_interact_bubble.add_theme_font_size_override("font_size", 8)
 	_interact_bubble.add_theme_constant_override("outline_size", 3)
 	_interact_bubble.add_theme_color_override("font_outline_color", Color.BLACK)
@@ -88,11 +94,16 @@ func _physics_process(delta: float) -> void:
 			and Input.is_action_just_pressed("interact"):
 		state_machine.change_state(&"Interact")
 	state_machine.physics_update(delta)
+	_correct_ceiling_corner(delta)
+	var fall_speed := velocity.y
 	move_and_slide()
 	var on_floor := is_on_floor()
 	if on_floor and not _was_on_floor and not is_dead:
 		Effects.dust(get_parent(), global_position)
 		AudioManager.play_sfx("land", 0.1)
+		# Aterrizaje: se aplasta más cuanto más fuerte cae.
+		var k := clampf(fall_speed / MAX_FALL_SPEED, 0.2, 1.0)
+		squash(Vector2(1.0 + 0.3 * k, 1.0 - 0.25 * k))
 		landed.emit()
 	_was_on_floor = on_floor
 	_interact_bubble.visible = interact_target != null and not is_dead and input_enabled
@@ -117,6 +128,10 @@ func apply_gravity(delta: float) -> void:
 	var g := GRAVITY
 	if velocity.y > 0.0:
 		g *= FALL_GRAVITY_MULT
+	# Cima del salto más suave: da tiempo de ajustar la caída si se mantiene el botón.
+	if absf(velocity.y) < APEX_THRESHOLD and input_enabled and Input.is_action_pressed("jump") \
+			and not is_on_floor():
+		g *= APEX_GRAVITY_MULT
 	velocity.y = minf(velocity.y + g * delta, MAX_FALL_SPEED)
 
 
@@ -131,6 +146,32 @@ func apply_horizontal(delta: float, allow_run: bool = true) -> void:
 		var fr := FRICTION if is_on_floor() else AIR_ACCEL * 0.5
 		velocity.x = move_toward(velocity.x, 0.0, fr * delta)
 	sprite.flip_h = facing < 0
+
+
+## Si al subir la cabeza apenas roza la esquina de un techo, desliza al jugador
+## unos píxeles en vez de cortar el salto (técnica habitual en plataformas).
+func _correct_ceiling_corner(delta: float) -> void:
+	if velocity.y >= 0.0 or is_dead:
+		return
+	var motion := Vector2(0, velocity.y * delta)
+	if not test_move(global_transform, motion):
+		return
+	for i in range(1, CORNER_CORRECTION + 1):
+		for dir: int in [1, -1]:
+			var shifted := global_transform.translated(Vector2(i * dir, 0))
+			if not test_move(shifted, motion):
+				global_position.x += i * dir
+				return
+
+
+## Estira o aplasta el sprite y lo devuelve a su forma con un rebote suave.
+func squash(amount: Vector2, duration: float = 0.16) -> void:
+	if _squash_tween:
+		_squash_tween.kill()
+	sprite.scale = amount
+	_squash_tween = create_tween()
+	_squash_tween.tween_property(sprite, "scale", Vector2.ONE, duration) \
+		.set_trans(Tween.TRANS_BACK).set_ease(Tween.EASE_OUT)
 
 
 func can_jump() -> bool:

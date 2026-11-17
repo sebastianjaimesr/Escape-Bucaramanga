@@ -15,7 +15,7 @@ func _ready() -> void:
 	set_anchors_preset(Control.PRESET_CENTER)
 	custom_minimum_size = Vector2(460, 0)
 	var box := VBoxContainer.new()
-	box.add_theme_constant_override("separation", 12)
+	box.add_theme_constant_override("separation", 8)
 	add_child(box)
 	box.add_child(UITheme.title_label("Opciones", 32, Color(1, 0.85, 0.5)))
 	_music = _slider(box, "Música", float(GameState.settings.get("music", 0.7)))
@@ -24,6 +24,18 @@ func _ready() -> void:
 	_sfx.value_changed.connect(func(v: float) -> void:
 		_set_setting("sfx", v)
 		AudioManager.play_sfx("collect"))
+	var mute := CheckButton.new()
+	mute.text = "Silenciar todo (tecla M)"
+	mute.button_pressed = AudioManager.is_muted()
+	mute.toggled.connect(func(on: bool) -> void:
+		AudioManager.set_muted(on)
+		_set_setting("muted", on))
+	box.add_child(mute)
+	var shake := CheckButton.new()
+	shake.text = "Sacudidas de cámara"
+	shake.button_pressed = bool(GameState.settings.get("screen_shake", true))
+	shake.toggled.connect(func(on: bool) -> void: _set_setting("screen_shake", on))
+	box.add_child(shake)
 	_rain = CheckButton.new()
 	_rain.text = "Lluvia en los niveles que la tienen"
 	_rain.button_pressed = bool(GameState.settings.get("rain", true))

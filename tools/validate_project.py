@@ -164,6 +164,10 @@ def check_levels():
             errors.append("%s: música inexistente" % lid)
         if not os.path.exists(os.path.join(ROOT, "assets", "backgrounds", "near_%s.png" % d.get("theme"))):
             errors.append("%s: fondo de temática inexistente" % lid)
+        if not os.path.exists(os.path.join(ROOT, "assets", "backgrounds", "landmark_%s.png" % d.get("theme"))):
+            errors.append("%s: falta la capa de lugar landmark_%s.png" % (lid, d.get("theme")))
+        if flat.count("a") != 3:
+            errors.append("%s: se esperaban 3 hormigas culonas y hay %d" % (lid, flat.count("a")))
 
 
 def check_scenes():

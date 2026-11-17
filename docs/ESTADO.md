@@ -1,6 +1,18 @@
 # Estado del proyecto
 
-Fecha: 13 de octubre de 2026. Motor usado para las pruebas: **Godot 4.7.2 estable**.
+Fecha: 16 de noviembre de 2026 (versión 1.1). Motor usado para las pruebas: **Godot 4.7.2 estable**.
+
+## Versión 1.1: verificación
+
+| Verificación | Cómo | Resultado |
+|---|---|---|
+| 20 pruebas de integración (14 originales + 6 nuevas) | `tests/test_runner.tscn` | 20 OK, estable en ejecuciones repetidas |
+| Los 7 niveles completables con la física nueva | `tests/bot_runner.tscn` | 7 de 7 (el nivel 6 bajó de 3 a 2 caídas) |
+| Hormigas culonas alcanzables | análisis del mapa: ≤ 72 px sobre una superficie; el jugador alcanza ≈ 95 px | 21 de 21 |
+| Validación estática | `py tools/validate_project.py` | 0 errores |
+| Capturas de título, menú, selección, cómo jugar, 7 niveles, pausa, victoria y final | `tests/screenshots.tscn` con renderizado OpenGL | revisadas una por una |
+| Versión web en Chrome (escritorio y móvil emulado) | exportación del paquete + página nueva, servida en local | carga, título, menú, nivel 1 y diálogo sin errores en consola; aviso de orientación en vertical |
+
 
 ## Terminado y verificado
 
@@ -38,6 +50,6 @@ El bot encontró 5 tramos injustos (un obstáculo justo antes de un hueco o esca
 ## Pendiente o limitado
 
 - **Fotografías**: no estaban en la carpeta. Los personajes se basan en la descripción escrita; los amigos son diseños provisionales (ver `docs/RECURSOS.md`).
-- **Controles táctiles**: implementados, no probados en un teléfono real.
+- **Controles táctiles**: distribución revisada en capturas y en Chrome con emulación táctil; falta probarlos en un teléfono físico.
 - **Balance fino**: el bot comprueba que se puede llegar a la meta, no que la dificultad sea ideal. Conviene jugarlo y ajustar velocidades de la persecución en `tools/build_levels.py`.
 - **Publicación**: la versión web está lista en `build/web/` pero no se ha publicado en ningún sitio (ver `docs/PUBLICACION.md`).

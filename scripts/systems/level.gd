@@ -38,6 +38,9 @@ var followers: Array[FriendFollower] = []
 var start_position := Vector2.ZERO
 var total_granizados := 0
 var total_pistas := 0
+var total_hormigas := 0
+var par_time := 60.0
+var background: Node2D
 var finished := false
 var elapsed := 0.0
 var _chase_timer := -1.0
@@ -55,7 +58,7 @@ func _ready() -> void:
 		GameState.friends = GameState.friends_before(level_index)
 	builder = LevelBuilder.new(data)
 	var theme: String = data.get("theme", "calles")
-	ParallaxBuilder.build(self, theme)
+	background = ParallaxBuilder.build(self, theme, 0.0, maxi(level_index, 0))
 	var night := CanvasModulate.new()
 	night.color = NIGHT_COLORS.get(theme, Color(0.65, 0.65, 0.85))
 	add_child(night)
@@ -70,6 +73,9 @@ func _ready() -> void:
 	start_position = info["player_start"]
 	total_granizados = info["total_granizados"]
 	total_pistas = info["total_pistas"]
+	total_hormigas = info.get("total_hormigas", 0)
+	# Tiempo de referencia para el bono: recorrer el nivel a ~55 px/s.
+	par_time = builder.pixel_size().x / 55.0
 	exit_node = info["exit"]
 	friend_node = info["friend"]
 
@@ -78,6 +84,7 @@ func _ready() -> void:
 	player.fall_limit_y = builder.pixel_size().y + 48.0
 	add_child(player)
 	player.died.connect(_on_player_died)
+	player.landed.connect(GameState.reset_combo)
 
 	trail = TrailRecorder.new()
 	trail.name = "Trail"
@@ -94,6 +101,7 @@ func _ready() -> void:
 	camera.setup(builder.pixel_size())
 	camera.make_current()
 	camera.snap_to_target()
+	AmbientBuilder.build(self, theme, camera, background)
 
 	chase = load(CHASE_SCENE).instantiate()
 	chase.player = player
@@ -110,6 +118,11 @@ func _ready() -> void:
 	mission.setup(data.get("mission", []))
 	hud.set_level_title(data.get("title", ""))
 	hud.show_pistas(total_pistas > 0)
+	hud.set_hormigas_total(total_hormigas)
+	GameState.hormigas_changed.connect(_on_hormiga_found)
+	for cp in get_tree().get_nodes_in_group("checkpoints"):
+		if cp.has_signal("activated"):
+			cp.activated.connect(_on_checkpoint_activated)
 	chase.distance_changed.connect(hud.set_chase_distance)
 
 	dialogue = load(DIALOGUE_SCENE).instantiate()
@@ -157,6 +170,35 @@ func _start_chase() -> void:
 	chase.activate()
 	hud.set_chase_visible(true)
 	hud.show_toast("¡El dron patrulla te sigue!", 2.0, Color(1, 0.45, 0.5))
+
+
+## Resumen del nivel con puntaje, bonos y estrellas (lo usa la pantalla de victoria).
+func build_stats() -> Dictionary:
+	var time_bonus := clampi(int((par_time - elapsed) * GameState.BONUS_TIME_PER_SECOND), 0, 4000)
+	var no_death_bonus := GameState.BONUS_NO_DEATHS if GameState.level_deaths == 0 else 0
+	var stars := GameState.compute_stars(GameState.level_granizados, total_granizados,
+		GameState.level_hormigas, total_hormigas)
+	return {
+		"title": data.get("title", ""),
+		"place": data.get("place", ""),
+		"granizados": GameState.level_granizados,
+		"total_granizados": total_granizados,
+		"pistas": GameState.level_pistas,
+		"total_pistas": total_pistas,
+		"hormigas": GameState.level_hormigas,
+		"total_hormigas": total_hormigas,
+		"time": elapsed,
+		"par_time": par_time,
+		"lives": GameState.lives,
+		"deaths": GameState.level_deaths,
+		"friends": GameState.friends.size(),
+		"base_score": GameState.level_score,
+		"bonus_complete": GameState.BONUS_COMPLETE,
+		"bonus_time": time_bonus,
+		"bonus_no_deaths": no_death_bonus,
+		"bonus_total": GameState.BONUS_COMPLETE + time_bonus + no_death_bonus,
+		"stars": stars,
+	}
 
 
 func _add_follower(id: String) -> void:
@@ -207,6 +249,21 @@ func _on_objective_completed(text: String) -> void:
 	AudioManager.play_sfx("checkpoint")
 
 
+func _on_checkpoint_activated(cp: Node2D) -> void:
+	# Cada punto de control da puntos solo la primera vez.
+	if not cp.has_meta("scored"):
+		cp.set_meta("scored", true)
+		GameState.add_score(GameState.POINTS["checkpoint"])
+
+
+func _on_hormiga_found(count: int) -> void:
+	if count == 1 and total_hormigas > 0:
+		hud.show_toast("¡Hormiga culona!\nHay %d escondidas en cada nivel" % total_hormigas, 2.4, Color(1, 0.75, 0.4))
+	elif count >= total_hormigas:
+		hud.show_toast("¡Encontraste todas las hormigas culonas!", 2.4, Color(1, 0.75, 0.4))
+		AudioManager.play_sfx("star")
+
+
 func _on_player_died(reason: String) -> void:
 	var lives := GameState.lose_life()
 	if lives <= 0:
@@ -232,6 +289,7 @@ func _on_friend_talk(friend: FriendNPC) -> void:
 	for cp in get_tree().get_nodes_in_group("checkpoints"):
 		cp.deactivate()
 	hud.show_toast("¡%s se unió al grupo!" % GameState.character_name(friend.friend_id), 2.2, Color(1, 0.9, 0.5))
+	GameState.add_score(GameState.POINTS["friend"])
 	friend.queue_free()
 	friend_node = null
 	_add_follower(friend.friend_id)
@@ -259,16 +317,9 @@ func _on_exit_reached(_p: Player) -> void:
 	if outro is String and outro != "":
 		await get_tree().create_timer(1.0).timeout
 		await dialogue.play(outro)
-	var stats := {
-		"title": data.get("title", ""),
-		"granizados": GameState.level_granizados,
-		"total_granizados": total_granizados,
-		"pistas": GameState.level_pistas,
-		"total_pistas": total_pistas,
-		"time": elapsed,
-		"lives": GameState.lives,
-		"friends": GameState.friends.size(),
-	}
+	var stats := build_stats()
+	GameState.add_score(int(stats["bonus_total"]))
+	stats["score"] = GameState.level_score
 	var was_last := GameState.is_last_level()
 	GameState.complete_level(stats)
 	await get_tree().create_timer(1.2).timeout

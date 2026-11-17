@@ -21,6 +21,19 @@ Desde la terminal:
 godot --headless --path . --export-release "Web" build/web/index.html
 ```
 
+La exportación web usa la página de carga propia `web/shell.html` (configurada en `html/custom_html_shell`): textos en español, barra de progreso, consejos, metadatos para compartir (`preview.png`) y aviso de orientación en celulares.
+
+### Actualizar solo el contenido del juego (sin plantillas de exportación)
+
+Si el motor no cambió de versión, basta con regenerar el paquete y la página:
+
+```bash
+godot --headless --path . --export-pack "Web" build/web/index.pck
+py tools/make_web_index.py build/web   # escribe index.html desde web/shell.html
+```
+
+`index.js`, `index.wasm` y los *worklets* de audio se reutilizan de la exportación anterior (misma versión de Godot, 4.7.2).
+
 ## 3. Probar localmente
 
 Los navegadores no cargan el juego abriendo `index.html` como archivo. Sirve la carpeta:
@@ -46,7 +59,7 @@ Opciones gratuitas habituales:
 - **itch.io**: crea un proyecto HTML, comprime el contenido de `build/web` en un .zip (con `index.html` en la raíz), súbelo y marca "This file will be played in the browser".
 - **GitHub Pages**: sube el contenido de `build/web` a una rama `gh-pages` o a la carpeta `docs/` de un repositorio público.
 
-Ninguna de estas acciones se ha realizado: publicar es tu decisión.
+La versión web está publicada en GitHub Pages desde la rama `gh-pages`. Al actualizarla, conserva la carpeta `beta-3d/` (prototipo 3D).
 
 ## Requisitos del navegador
 

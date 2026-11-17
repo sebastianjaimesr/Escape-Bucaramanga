@@ -9,6 +9,7 @@ const SOLID := "#B"
 
 const SCENES := {
 	"o": "res://scenes/obstacles/collectible.tscn",
+	"a": "res://scenes/obstacles/collectible.tscn",
 	"p": "res://scenes/obstacles/collectible.tscn",
 	"h": "res://scenes/obstacles/collectible.tscn",
 	"^": "res://scenes/obstacles/hazard.tscn",
@@ -148,7 +149,7 @@ func _fill_column(x: int, y: int) -> int:
 ## Recorre el mapa y crea las entidades. Devuelve información útil para el nivel.
 func spawn_entities(world: Node2D, props_root: Node2D, entities_root: Node2D) -> Dictionary:
 	var info := {"player_start": Vector2(64, 200), "exit": null, "friend": null, "hints": [],
-		"total_granizados": 0, "total_pistas": 0}
+		"total_granizados": 0, "total_pistas": 0, "total_hormigas": 0}
 	var hints: Array = data.get("hints", [])
 	var hint_index := 0
 	var packed_cache := {}
@@ -177,11 +178,13 @@ func spawn_entities(world: Node2D, props_root: Node2D, entities_root: Node2D) ->
 				packed_cache[path] = load(path)
 			var node = packed_cache[path].instantiate()  # sin tipo: cada escena expone propiedades propias
 			match ch:
-				"o", "p", "h":
-					node.kind = {"o": "granizado", "p": "pista", "h": "heart"}[ch]
+				"o", "p", "h", "a":
+					node.kind = {"o": "granizado", "p": "pista", "h": "heart", "a": "hormiga"}[ch]
 					node.position = center(x, y)
 					if ch == "o":
 						info["total_granizados"] += 1
+					elif ch == "a":
+						info["total_hormigas"] += 1
 					elif ch == "p":
 						info["total_pistas"] += 1
 				"^", "n":

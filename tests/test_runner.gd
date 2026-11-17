@@ -60,6 +60,24 @@ func _ready() -> void:
 	_begin("test_scene_transition")
 	await test_scene_transition()
 	_end()
+	_begin("test_hormiga_and_score")
+	await test_hormiga_and_score()
+	_end()
+	_begin("test_stomp_combo")
+	await test_stomp_combo()
+	_end()
+	_begin("test_stars_and_bonuses")
+	await test_stars_and_bonuses()
+	_end()
+	_begin("test_save_v2_and_v1_compat")
+	await test_save_v2_and_v1_compat()
+	_end()
+	_begin("test_menus_and_screens_load")
+	await test_menus_and_screens_load()
+	_end()
+	_begin("test_landmark_layers")
+	await test_landmark_layers()
+	_end()
 	_begin("test_performance")
 	await test_performance()
 	_end()
@@ -104,11 +122,23 @@ func spawn_level(level_id: String) -> Level:
 	GameState.health = GameState.MAX_HEALTH
 	GameState.level_granizados = 0
 	GameState.level_pistas = 0
+	GameState.level_hormigas = 0
+	GameState.level_score = 0
+	GameState.level_deaths = 0
+	GameState.combo = 0
 	GameState.has_checkpoint = false
+	_mark_intros_seen()
 	var scene: PackedScene = load("res://scenes/levels/%s.tscn" % level_id)
 	var level: Level = scene.instantiate()
 	add_child(level)
 	return level
+
+
+## Las introducciones pausan el juego; las pruebas las marcan como vistas.
+func _mark_intros_seen() -> void:
+	for i in GameState.level_count():
+		var d := GameState.load_level_data(GameState.levels[i]["id"])
+		GameState.intros_seen[d.get("intro", "")] = true
 
 
 func free_level(level: Level) -> void:
@@ -360,6 +390,148 @@ func test_scene_transition() -> void:
 	SceneTransition.change_scene("res://scenes/menus/main_menu.tscn")
 	await SceneTransition.transition_finished
 	check(get_tree().current_scene != null and get_tree().current_scene.name == "MainMenu", "No volvió al menú")
+	check(get_tree().current_scene.get_script() != null, "El script del menú no cargó (error de compilación)")
+
+
+# ---------------------------------------------------------------------------
+# Versión 1.1: puntaje, hormigas culonas, estrellas, guardado v2 y pantallas
+# ---------------------------------------------------------------------------
+func test_hormiga_and_score() -> void:
+	var level := spawn_level("level_01")
+	await frames(5)
+	check(level.total_hormigas == GameState.HORMIGAS_PER_LEVEL,
+		"El nivel 1 debe tener %d hormigas (tiene %d)" % [GameState.HORMIGAS_PER_LEVEL, level.total_hormigas])
+	var target: Node2D = null
+	for n in level.get_node("Entities").get_children():
+		if n.get("kind") == "hormiga":
+			target = n
+			break
+	check(target != null, "No hay hormigas culonas en el nivel 1")
+	if target:
+		var before := GameState.level_score
+		# Sin física del jugador: la hormiga 1 está sobre un carro que lo empujaría.
+		level.player.set_physics_process(false)
+		level.player.global_position = target.global_position + Vector2(0, 12)
+		await frames(6)
+		check(GameState.level_hormigas == 1, "No se contó la hormiga (%d)" % GameState.level_hormigas)
+		check(GameState.level_score - before >= GameState.POINTS["hormiga"], "La hormiga no sumó puntaje")
+	await free_level(level)
+	check(is_equal_approx(Engine.time_scale, 1.0), "El hit stop dejó el tiempo detenido")
+	for i in GameState.level_count():
+		var d := GameState.load_level_data(GameState.levels[i]["id"])
+		var count := 0
+		for row: String in d["map"]:
+			count += row.count("a")
+		check(count == GameState.HORMIGAS_PER_LEVEL, "%s tiene %d hormigas" % [d["id"], count])
+
+
+func test_stomp_combo() -> void:
+	var level := spawn_level("level_03")
+	await frames(5)
+	GameState.reset_combo()
+	var start := GameState.level_score
+	var p1 := GameState.register_stomp()
+	var p2 := GameState.register_stomp()
+	check(p1 == 50 and p2 == 100, "Combo incorrecto: %d, %d" % [p1, p2])
+	check(GameState.level_score - start == 150, "El combo no sumó al puntaje")
+	level.player.landed.emit()
+	check(GameState.combo == 0, "El combo no se reinició al aterrizar")
+	# Pisar un dron real con la física
+	var drone: Node2D = null
+	for n in level.get_node("Entities").get_children():
+		if n is Enemy and (n as Enemy).can_be_stomped:
+			drone = n
+			break
+	check(drone != null, "El nivel 3 no tiene drones")
+	if drone:
+		drone.set("speed", 0.0)  # queda quieto, pero sigue detectando contacto
+		await frames(2)
+		var before := GameState.level_score
+		level.player.global_position = drone.global_position + Vector2(0, -14)
+		level.player.velocity = Vector2(0, 120)
+		await frames(6)
+		check(GameState.level_score > before, "Pisar un dron no dio puntos")
+	await free_level(level)
+
+
+func test_stars_and_bonuses() -> void:
+	check(GameState.compute_stars(0, 20, 0, 3) == 1, "Completar debe dar 1 estrella")
+	check(GameState.compute_stars(15, 20, 0, 3) == 2, "75 % de granizados debe dar 2 estrellas")
+	check(GameState.compute_stars(14, 20, 3, 3) == 2, "Las 3 hormigas deben sumar una estrella")
+	check(GameState.compute_stars(20, 20, 3, 3) == 3, "Todo debe dar 3 estrellas")
+	var level := spawn_level("level_02")
+	await frames(5)
+	level.elapsed = 0.0
+	var stats := level.build_stats()
+	check(int(stats["bonus_no_deaths"]) == GameState.BONUS_NO_DEATHS, "Falta el bono sin muertes")
+	check(int(stats["bonus_time"]) > 0, "Falta el bono de tiempo")
+	GameState.lose_life()
+	level.elapsed = level.par_time + 10.0
+	stats = level.build_stats()
+	check(int(stats["bonus_no_deaths"]) == 0 and int(stats["bonus_time"]) == 0, "Bonos mal calculados tras morir y tardar")
+	await free_level(level)
+
+
+func test_save_v2_and_v1_compat() -> void:
+	GameState.best_scores = {"level_01": 4321}
+	GameState.best_stars = {"level_01": 2}
+	GameState.best_hormigas = {"level_01": 3}
+	check(SaveSystem.save_game(), "No se pudo guardar")
+	GameState.best_scores = {}
+	GameState.best_stars = {}
+	GameState.best_hormigas = {}
+	SaveSystem.load_game()
+	check(int(GameState.best_scores.get("level_01", 0)) == 4321, "No se recuperó el puntaje")
+	check(int(GameState.best_stars.get("level_01", 0)) == 2, "No se recuperaron las estrellas")
+	check(int(GameState.best_hormigas.get("level_01", 0)) == 3, "No se recuperaron las hormigas")
+	# Un guardado de la versión 1 (sin los campos nuevos) debe seguir cargando.
+	var f := FileAccess.open(SaveSystem.SAVE_PATH, FileAccess.WRITE)
+	f.store_string(JSON.stringify({"version": 1, "current_level": 2, "unlocked_level": 2, "lives": 4,
+		"best_granizados": {"level_01": 10}, "intros_seen": {}, "settings": {"music": 0.5}}))
+	f.close()
+	check(SaveSystem.load_game(), "No cargó un guardado v1")
+	check(GameState.unlocked_level == 2 and GameState.best_scores.is_empty(), "Guardado v1 mal interpretado")
+	GameState.best_scores = {}
+	GameState.best_stars = {}
+	GameState.best_hormigas = {}
+	_mark_intros_seen()
+	SaveSystem.save_game()  # deja un guardado coherente para la siguiente ejecución
+
+
+func test_menus_and_screens_load() -> void:
+	GameState.last_result = {"title": "Prueba", "granizados": 5, "total_granizados": 10, "hormigas": 1,
+		"total_hormigas": 3, "time": 30.0, "lives": 5, "level_index": 0, "base_score": 100, "bonus_complete": 1000,
+		"bonus_time": 200, "bonus_no_deaths": 1500, "score": 2800, "stars": 1}
+	for path in ["res://scenes/menus/main_menu.tscn", "res://scenes/menus/victory.tscn",
+			"res://scenes/menus/game_over.tscn", "res://scenes/menus/ending.tscn"]:
+		var scene: Node = load(path).instantiate()
+		check(scene.get_script() != null, "%s no tiene script válido" % path)
+		get_tree().root.add_child(scene)
+		await frames(3)
+		if path.ends_with("main_menu.tscn"):
+			scene.call("_show_menu", false)
+			scene.call("_level_select")
+			await frames(2)
+			check(scene.get("_sub") != null, "No abrió la selección de nivel")
+			scene.call("_close_sub")
+			scene.call("_how_to_play")
+			await frames(2)
+			scene.call("_close_sub")
+		scene.queue_free()
+		await frames(2)
+	AudioManager.stop_music()
+
+
+func test_landmark_layers() -> void:
+	for i in GameState.level_count():
+		var level := spawn_level(GameState.levels[i]["id"])
+		await frames(2)
+		var found := false
+		for child in level.background.get_children():
+			if String(child.name).begins_with("Landmark"):
+				found = true
+		check(found, "%s no tiene capa de lugar" % level.level_id)
+		await free_level(level)
 
 
 func test_performance() -> void:

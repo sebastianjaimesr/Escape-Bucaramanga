@@ -7,11 +7,26 @@ signal health_changed(health: int, max_health: int)
 signal granizados_changed(count: int)
 signal pistas_changed(count: int)
 signal friends_changed(friends: Array)
+signal score_changed(score: int, delta: int)
+signal hormigas_changed(count: int)
+signal combo_changed(combo: int)
 
 const MAX_LIVES := 5
 const MAX_HEALTH := 3
 const LEVELS_INDEX := "res://data/levels/levels.json"
 const CHARACTERS_FILE := "res://data/dialogue/characters.json"
+const HORMIGAS_PER_LEVEL := 3
+const MAX_COMBO := 5
+## Puntos por acción. El multiplicador de combo solo aplica a enemigos pisados seguidos.
+const POINTS := {
+	"granizado": 10, "pista": 150, "heart": 25, "life": 100, "hormiga": 300,
+	"stomp": 50, "friend": 500, "checkpoint": 50,
+}
+## Bonos al terminar un nivel.
+const BONUS_COMPLETE := 1000
+const BONUS_NO_DEATHS := 1500
+const BONUS_TIME_PER_SECOND := 25
+const STAR_GRANIZADO_RATIO := 0.75
 
 var levels: Array = []
 var characters: Dictionary = {}
@@ -21,13 +36,21 @@ var lives := MAX_LIVES
 var health := MAX_HEALTH
 var level_granizados := 0
 var level_pistas := 0
+var level_hormigas := 0
+var level_score := 0
+var level_deaths := 0
+var combo := 0
 var friends: Array = []
 var checkpoint_position := Vector2.ZERO
 var has_checkpoint := false
 var intros_seen: Dictionary = {}
 var best_granizados: Dictionary = {}
+var best_scores: Dictionary = {}    ## id de nivel -> mejor puntaje
+var best_stars: Dictionary = {}     ## id de nivel -> estrellas (0-3)
+var best_hormigas: Dictionary = {}  ## id de nivel -> hormigas culonas encontradas (máximo)
 var last_result: Dictionary = {}
-var settings := {"music": 0.7, "sfx": 0.85, "rain": true, "fullscreen": false}
+var settings := {"music": 0.7, "sfx": 0.85, "rain": true, "fullscreen": false, "muted": false,
+	"screen_shake": true}
 
 
 func _ready() -> void:
@@ -101,6 +124,10 @@ func start_level(index: int) -> void:
 	health = MAX_HEALTH
 	level_granizados = 0
 	level_pistas = 0
+	level_hormigas = 0
+	level_score = 0
+	level_deaths = 0
+	combo = 0
 	has_checkpoint = false
 	friends = friends_before(index)
 	SaveSystem.save_game()
@@ -126,12 +153,42 @@ func friends_before(index: int) -> Array:
 func complete_level(stats: Dictionary) -> void:
 	var level_id: String = levels[current_level]["id"]
 	best_granizados[level_id] = maxi(int(best_granizados.get(level_id, 0)), level_granizados)
+	var score := int(stats.get("score", level_score))
+	stats["new_record"] = score > int(best_scores.get(level_id, 0))
+	best_scores[level_id] = maxi(int(best_scores.get(level_id, 0)), score)
+	best_stars[level_id] = maxi(int(best_stars.get(level_id, 0)), int(stats.get("stars", 0)))
+	best_hormigas[level_id] = maxi(int(best_hormigas.get(level_id, 0)), level_hormigas)
 	last_result = stats
 	last_result["level_index"] = current_level
 	if current_level + 1 < levels.size():
 		unlocked_level = maxi(unlocked_level, current_level + 1)
 		current_level += 1
 	SaveSystem.save_game()
+
+
+## Estrellas: 1 por completar, 1 por recoger al menos el 75 % de los granizados
+## y 1 por encontrar todas las hormigas culonas del nivel.
+static func compute_stars(granizados: int, total_granizados: int, hormigas: int, total_hormigas: int) -> int:
+	var stars := 1
+	if total_granizados <= 0 or granizados >= ceili(total_granizados * STAR_GRANIZADO_RATIO):
+		stars += 1
+	if total_hormigas > 0 and hormigas >= total_hormigas:
+		stars += 1
+	return stars
+
+
+func total_score() -> int:
+	var total := 0
+	for key: String in best_scores:
+		total += int(best_scores[key])
+	return total
+
+
+func total_stars() -> int:
+	var total := 0
+	for key: String in best_stars:
+		total += int(best_stars[key])
+	return total
 
 
 func is_last_level() -> bool:
@@ -154,6 +211,8 @@ func heal(amount: int) -> void:
 
 func lose_life() -> int:
 	lives = maxi(0, lives - 1)
+	level_deaths += 1
+	reset_combo()
 	health = MAX_HEALTH
 	lives_changed.emit(lives)
 	health_changed.emit(health, MAX_HEALTH)
@@ -162,6 +221,7 @@ func lose_life() -> int:
 
 func add_granizado(amount: int = 1) -> void:
 	level_granizados += amount
+	add_score(POINTS["granizado"] * amount)
 	granizados_changed.emit(level_granizados)
 	# Cada 25 granizados se gana una vida extra.
 	if level_granizados % 25 == 0 and lives < MAX_LIVES:
@@ -176,7 +236,36 @@ func add_life() -> void:
 
 func add_pista() -> void:
 	level_pistas += 1
+	add_score(POINTS["pista"])
 	pistas_changed.emit(level_pistas)
+
+
+func add_hormiga() -> void:
+	level_hormigas += 1
+	hormigas_changed.emit(level_hormigas)
+	add_score(POINTS["hormiga"])
+
+
+func add_score(points: int) -> void:
+	if points == 0:
+		return
+	level_score += points
+	score_changed.emit(level_score, points)
+
+
+## Enemigo pisado: suma puntos con multiplicador por combo. Devuelve los puntos ganados.
+func register_stomp() -> int:
+	combo = mini(combo + 1, MAX_COMBO)
+	var points: int = POINTS["stomp"] * combo
+	add_score(points)
+	combo_changed.emit(combo)
+	return points
+
+
+func reset_combo() -> void:
+	if combo != 0:
+		combo = 0
+		combo_changed.emit(combo)
 
 
 func add_friend(id: String) -> void:
@@ -201,6 +290,7 @@ func _setup_input() -> void:
 		"run": [KEY_SHIFT, KEY_X],
 		"interact": [KEY_E, KEY_S, KEY_DOWN],
 		"pause": [KEY_ESCAPE, KEY_P],
+		"mute": [KEY_M],
 	}
 	var buttons := {
 		"move_left": [JOY_BUTTON_DPAD_LEFT],
@@ -209,6 +299,7 @@ func _setup_input() -> void:
 		"run": [JOY_BUTTON_X, JOY_BUTTON_RIGHT_SHOULDER],
 		"interact": [JOY_BUTTON_Y, JOY_BUTTON_B],
 		"pause": [JOY_BUTTON_START],
+		"mute": [],
 	}
 	for action: String in keys:
 		if not InputMap.has_action(action):
